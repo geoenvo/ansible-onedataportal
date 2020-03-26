@@ -1,0 +1,74 @@
+---
+- name: Install the `openjdk-8-jdk` package
+  package:
+    name: openjdk-8-jdk
+    state: latest
+
+- name: Set JAVA_HOME environment variable
+  lineinfile:
+    path: /etc/environment
+    line: JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+- name: "Download Solr {{ solr_version }} from {{ solr_archive_url }}"
+  get_url:
+    url: "{{ solr_archive_url }}"
+    dest: "{{ working_dir }}/{{ solr_archive }}"
+    force: false
+
+- name: "Extract installation script from {{ solr_archive }}"
+  command: "tar xzf {{ solr_archive }} solr-{{ solr_version }}/bin/install_solr_service.sh --strip-components=2"
+  args:
+    chdir: "{{ working_dir }}"
+    creates: "{{ working_dir }}/install_solr_service.sh"
+
+- name: Run Solr installation script
+  command: >
+    {{ working_dir }}/install_solr_service.sh
+    {{ working_dir }}/{{ solr_archive }}
+    -i /opt
+    -d /var/solr
+    -u solr
+    -s solr
+    -p 8983
+    creates=/opt/solr/bin/solr
+
+- name: Ensure Solr service is started and enabled on boot
+  service:
+    name: solr
+    state: started
+    enabled: yes
+
+- name: Create ckan core
+  become: true
+  become_user: solr
+  become_method: sudo
+  command: /opt/solr/bin/solr create -c ckan
+  args:
+    creates: /var/solr/data/ckan
+
+- name: Delete managed-schema solr config file
+  file:
+    path: /var/solr/data/ckan/conf/managed-schema
+    state: absent
+
+- name: Copy Solr solrconfig.xml configuration for CKAN from template
+  copy:
+    src: ../templates/solrconfig.xml.j2
+    dest: /var/solr/data/ckan/conf/solrconfig.xml
+    owner: solr
+    group: solr
+    mode: 0644
+
+- name: Copy Solr schema.xml configuration for CKAN from template
+  copy:
+    src: ../templates/schema.xml.j2
+    dest: /var/solr/data/ckan/conf/schema.xml
+    owner: solr
+    group: solr
+    mode: 0644
+
+- name: Restart Solr
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: solr
