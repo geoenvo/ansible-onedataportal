@@ -32,16 +32,17 @@
    - "postgresql-{{ postgresql_version }}-postgis-{{ postgis_version }}"
    - postgis
    - libpq-dev
+   - python-psycopg2
 
-- name: Check if pg_hba.conf and postgresql.conf backups have been created
+- name: Check if `pg_hba.conf` and `postgresql.conf` backups have been created
   stat:
     path: "{{ item }}"
   loop:
     - "{{ postgresql_conf_path }}/pg_hba.conf.orig"
     - "{{ postgresql_conf_path }}/postgresql.conf.orig"
-  register: backup_files_stat
+  register: postgresql_backup_files_stat
 
-- name: Backup pg_hba.conf and postgresql.conf if backup files don't exist
+- name: Backup `pg_hba.conf` `and postgresql.conf` if backup files do not exist
   become: true
   become_user: postgres
   become_method: sudo
@@ -51,7 +52,7 @@
   with_items:
     - "{{ postgresql_conf_path }}/pg_hba.conf {{ postgresql_conf_path }}/pg_hba.conf.orig"
     - "{{ postgresql_conf_path }}/postgresql.conf {{ postgresql_conf_path }}/postgresql.conf.orig"
-  when: backup_files_stat.results | rejectattr('stat.exists') | list
+  when: postgresql_backup_files_stat.results | rejectattr('stat.exists') | list
 
 - name: Enable password authentication (local all all md5)
   postgresql_pg_hba:
@@ -75,7 +76,7 @@
     path: "{{ postgresql_conf_path }}/postgresql.conf"
     line: listen_addresses = '*'
 
-- name: Change postgres user password
+- name: "Change postgres user password using `postgres_user_password` variable"
   become: true
   become_user: postgres
   become_method: sudo

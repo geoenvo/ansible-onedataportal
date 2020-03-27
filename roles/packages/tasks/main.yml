@@ -12,7 +12,7 @@
 
 - name: Install prerequisite tool packages
   package:
-    name: "{{item}}"
+    name: "{{ item }}"
     state: present
   with_items:
    - vim
