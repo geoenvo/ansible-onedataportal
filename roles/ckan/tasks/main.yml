@@ -1,0 +1,223 @@
+---
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
+- name: Install CKAN prerequisite packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+   - build-essential
+   - python-pip
+   - python-virtualenv
+   - python-dev
+   - libxslt1-dev
+   - libxml2-dev
+   - zlib1g-dev
+   - libffi-dev
+   - redis-server
+   - apache2
+   - libapache2-mod-wsgi
+   - libapache2-mod-rpaf
+   - nginx
+
+- name: Temporarily stop Apache service
+  service:
+    name: apache2
+    state: stopped
+
+- name: Check if `/etc/apache2/ports.conf.orig` backup has been created
+  stat:
+    path: /etc/apache2/ports.conf.orig
+  register: apache2_ports_conf_backup_stat
+
+- name: Backup `/etc/apache2/ports.conf` if backup file does not exist
+  shell: "cp /etc/apache2/ports.conf /etc/apache2/ports.conf.orig"
+  when: apache2_ports_conf_backup_stat.stat.exists == false
+
+- name: Modify Apache to switch listening from port 80 to 8080
+  lineinfile:
+    dest: "/etc/apache2/ports.conf"
+    regexp: "^Listen 80"
+    line: "Listen 8080"
+    state: present
+  notify: reload apache2
+
+- name: Enable mod-wsgi and mod-rpaf Apache modules
+  command: /usr/sbin/a2enmod {{ item.mod }} creates={{ item.link }}
+  with_items:
+    - { mod: "wsgi", link: "/etc/apache2/mods-enabled/wsgi.load" }
+    - { mod: "rpaf", link: "/etc/apache2/mods-enabled/rpaf.load" }
+  notify: reload apache2
+
+- name: Start and enable Apache service
+  service:
+    name: apache2
+    state: started
+    enabled: yes
+
+- name: "Create CKAN system user account (home => `{{ ckan_user.home_path }}`)"
+  user:
+    name: "{{ ckan_user.name }}"
+    system: "{{ ckan_user.system }}"
+    create_home: yes
+    home: "{{ ckan_user.home_path }}"
+    shell: "{{ ckan_user.shell }}"
+    comment: "{{ ckan_user.description }}"
+  when: ckan_user is defined
+
+- pip:
+    name: setuptools==36.1
+
+- name: Upgrade python-pip
+  command: pip install --upgrade pip
+
+- name: "Install CKAN from `{{ ckan_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckan_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Install CKAN Python package requirements from `{{ ckan_virtualenv }}/src/ckan/requirements.txt`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    requirements: "{{ ckan_virtualenv }}/src/ckan/requirements.txt"
+    virtualenv: "{{ ckan_virtualenv }}"
+    state: present
+
+- name: "Create CKAN PostgreSQL user `{{ ckan_db.username }}` ({{ ckan_db.role_attr_flags }})"
+  become: true
+  become_user: postgres
+  postgresql_user:
+    name: "{{ ckan_db.username }}"
+    password: "{{ ckan_db.password }}"
+    role_attr_flags: "{{ ckan_db.role_attr_flags }}"
+
+- name: Create CKAN PostgreSQL database `{{ ckan_db.name }}`"
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ ckan_db.name }}"
+    encoding: UTF-8
+    template: template0
+    owner: "{{ ckan_db.username }}"
+
+- name: "Create CKAN config directory at `{{ ckan_conf_dir }}`"
+  file:
+    path: "{{ ckan_conf_dir }}"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0755
+    state: directory
+
+- name: "Create CKAN file upload directory at `{{ ckan_storage_path }}`"
+  file:
+    path: "{{ ckan_storage_path }}"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0755
+    state: directory
+
+- name: "Copy CKAN production.ini config file from template (only if `{{ ckan_conf_dir }}/production.ini` does not exist)"
+  template:
+    src: ../templates/production.ini.j2
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0644
+    force: no
+
+- name: Generate beaker secret token
+  command: "{{ ckan_virtualenv }}/bin/python -c 'from paste.script.util import secret; print secret.secret_string()'"
+  register: beaker_secret_token
+
+- name: Set beaker.session.secret in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: "^####beaker.*session.*secret"
+    line: "beaker.session.secret = {{ beaker_secret_token.stdout }}"
+    state: present
+  when: beaker_secret_token is defined
+
+- name: Generate ckan aplication instance UUID
+  command: "{{ ckan_virtualenv }}/bin/python -c 'import uuid; print uuid.uuid4()'"
+  register: app_instance_uuid
+
+- name: Set app_instance_uuid in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: "^####app_instance_uuid"
+    line: "app_instance_uuid = {{ app_instance_uuid.stdout }}"
+    state: present
+  when: app_instance_uuid is defined
+
+- name: Create symlink from who.ini to CKAN config directory
+  file:
+    src: "{{ ckan_virtualenv }}/src/ckan/who.ini"
+    dest: "{{ ckan_conf_dir }}/who.ini"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    state: link
+
+- name: "Check if CKAN database initialized flag file `{{ ckan_conf_dir }}/.ckan_database_initialized` exists"
+  stat:
+    path: "{{ ckan_conf_dir }}/.ckan_database_initialized"
+  register: ckan_database_initialized_stat
+
+- name: "Initialize CKAN PostgreSQL database (only if `{{ ckan_conf_dir }}.ckan_database_initialized` file does not exist)"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  command: "{{ ckan_virtualenv }}/bin/paster --plugin=ckan db init -c {{ ckan_conf_dir }}/production.ini"
+  register: ckan_database_initialized
+  when: ckan_database_initialized_stat.stat.exists == false
+
+- name: "Create CKAN database initialized flag file `{{ ckan_conf_dir }}/.ckan_database_initialized`"
+  copy:
+    content: "CKAN database initialized\n"
+    dest: "{{ ckan_conf_dir }}/.ckan_database_initialized"
+  when: ckan_database_initialized is defined and ckan_database_initialized_stat.stat.exists == false
+
+- name: "Copy CKAN Apache virtualhost config file from template to `/etc/apache2/sites-available/{{ ckan_site_name }}.conf`"
+  template:
+    src: "../templates/apache_virtualhost.conf.j2"
+    dest: "/etc/apache2/sites-available/{{ ckan_site_name }}.conf"
+  notify: reload apache2
+
+- name: "Copy CKAN WSGI config file from template to `{{ ckan_conf_dir }}/apache.wsgi`"
+  template:
+    src: "../templates/apache.wsgi.j2"
+    dest: "{{ ckan_conf_dir }}/apache.wsgi"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0644
+  notify: reload apache2
+
+- name: Disable default Apache virtualhost site
+  shell: "/usr/sbin/a2dissite 000-default.conf"
+  notify: reload apache2
+
+- name: Enable CKAN Apache virtualhost site
+  shell: "/usr/sbin/a2ensite {{ ckan_site_name }}"
+  notify: reload apache2
+
+- name: Disable default NGINX virtualhost site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: "Copy CKAN NGINX virtualhost config file from template to `/etc/nginx/sites-available/{{ ckan_site_name }}`"
+  template:
+    src: "../templates/nginx_virtualhost.j2"
+    dest: "/etc/nginx/sites-available/{{ ckan_site_name }}"
+
+- name: Enable CKAN NGINX virtualhost site
+  file:
+    src: "/etc/nginx/sites-available/{{ ckan_site_name }}"
+    dest: "/etc/nginx/sites-enabled/default"
+    state: link
+  notify: reload nginx
