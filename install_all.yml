@@ -1,0 +1,6 @@
+---
+- include: 0_provision_server.yml
+- include: 1_install_postgresql.yml
+- include: 2_install_solr.yml
+- include: 3_install_ckan.yml
+- include: 4_install_ckan_extras.yml
