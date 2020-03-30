@@ -84,5 +84,5 @@ SSH to the target server and perform the following steps:
   sudo reboot
   ```
 * Access the One Data Portal at the server's IP address or domain name on a web browser
-    * By default the Data Portal is accessible at http://192.168.1.200
+    * By default the CKAN Data Portal is accessible at http://192.168.1.200
 * Done!
