@@ -1,0 +1,10 @@
+---
+- name: "Install DataStore, ckanext-spatial, ckanext-geoview extensions for CKAN {{ ckan_version }}"
+  hosts: all
+  become: true
+  
+  vars_files:
+    - vars_ckan.yml
+
+  roles:
+    - ckan_extras

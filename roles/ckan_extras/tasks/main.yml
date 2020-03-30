@@ -1,0 +1,274 @@
+---
+# Setup CKAN DataStore extension
+# https://docs.ckan.org/en/2.8/maintaining/datastore.html
+- name: "Create CKAN DataStore PostgreSQL user `{{ datastore_db.username }}` ({{ datastore_db.role_attr_flags }})"
+  become: true
+  become_user: postgres
+  postgresql_user:
+    name: "{{ datastore_db.username }}"
+    password: "{{ datastore_db.password }}"
+    role_attr_flags: "{{ datastore_db.role_attr_flags }}"
+
+- name: Create CKAN DataStore PostgreSQL database `{{ datastore_db.name }}` owned by `{{ ckan_db.username }}`"
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ datastore_db.name }}"
+    encoding: UTF-8
+    template: template0
+    owner: "{{ ckan_db.username }}"
+
+- name: Check if DataStore extension is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*datastore.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: datastore_enabled
+
+- name: Enable DataStore extension in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 datastore'
+    state: present
+  when: not datastore_enabled.found
+
+- name: Enable DataStore database writing in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^#ckan.datastore.write_url'
+    line: "ckan.datastore.write_url = postgresql://{{ ckan_db.username }}:{{ ckan_db.password }}@{{ datastore_db.host }}/{{ datastore_db.name }}"
+    state: present
+
+- name: Enable DataStore database reading in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^#ckan.datastore.read_url'
+    line: "ckan.datastore.read_url = postgresql://{{ datastore_db.username }}:{{ datastore_db.password }}@{{ datastore_db.host }}/{{ datastore_db.name }}"
+    state: present
+
+- name: "Check if CKAN DataStore database initialized flag file `{{ ckan_conf_dir }}/.datastore_database_initialized` exists"
+  stat:
+    path: "{{ ckan_conf_dir }}/.datastore_database_initialized"
+  register: datastore_database_initialized_stat
+
+- name: "Initialize CKAN DataStore database permissions (only if `{{ ckan_conf_dir }}/.datastore_database_initialized` file does not exist)"
+  shell: |
+    {{ ckan_virtualenv }}/bin/paster --plugin=ckan datastore set-permissions -c {{ ckan_conf_dir }}/production.ini | sudo -u postgres psql --set ON_ERROR_STOP=1
+    exit
+  when: datastore_database_initialized_stat.stat.exists == false
+
+- name: "Create CKAN DataStore database initialized flag file `{{ ckan_conf_dir }}/.datastore_database_initialized`"
+  copy:
+    content: "DataStore database initialized\n"
+    dest: "{{ ckan_conf_dir }}/.datastore_database_initialized"
+  when: datastore_database_initialized_stat.stat.exists == false
+  notify: reload apache2
+
+# Setup ckanext-spatial extension
+# https://docs.ckan.org/projects/ckanext-spatial/en/latest/
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
+- name: Install ckanext-spatial prerequisite packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+   - python-dev
+   - libxslt1-dev
+   - libxml2-dev
+   - libgeos-c1v5
+
+- name: Enable PostGIS extension on CKAN database
+  become: true
+  become_user: postgres
+  become_method: sudo
+  shell: |
+    psql -d {{ ckan_db.name }} -c "CREATE EXTENSION postgis; CREATE EXTENSION postgis_topology;"
+    psql -d {{ ckan_db.name }} -c "ALTER VIEW geometry_columns OWNER TO {{ ckan_db.username }};"
+    psql -d {{ ckan_db.name }} -c "ALTER TABLE spatial_ref_sys OWNER TO {{ ckan_db.username }};"
+    exit
+
+- name: "Install ckanext-spatial extension from `{{ ckanext_spatial_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_spatial_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Install ckanext-spatial package requirements from `{{ ckan_virtualenv }}/src/ckanext-spatial/pip-requirements.txt`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    requirements: "{{ ckan_virtualenv }}/src/ckanext-spatial/pip-requirements.txt"
+    virtualenv: "{{ ckan_virtualenv }}"
+    state: present
+
+- name: Check if spatial_metadata and spatial_query plugins are already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*spatial_metadata spatial_query.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: spatial_plugins_enabled
+
+- name: Enable spatial_metadata and spatial_query plugins in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 spatial_metadata spatial_query'
+    state: present
+  when: not spatial_plugins_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-harvest extension
+# https://github.com/ckan/ckanext-harvest
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
+- name: Install ckanext-harvest prerequisite packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+   - redis-server
+
+- name: "Install ckanext-harvest extension from `{{ ckanext_harvest_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_harvest_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Install ckanext-harvest package requirements from `{{ ckan_virtualenv }}/src/ckanext-harvest/pip-requirements.txt`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    requirements: "{{ ckan_virtualenv }}/src/ckanext-harvest/pip-requirements.txt"
+    virtualenv: "{{ ckan_virtualenv }}"
+    state: present
+
+- name: Check if harvest and ckan_harvester plugins are already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*harvest ckan_harvester.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: harvest_plugins_enabled
+
+- name: Enable harvest and ckan_harvester plugins in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 harvest ckan_harvester'
+    state: present
+  when: not harvest_plugins_enabled.found
+
+- name: Enable redis as harvest mq in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    insertafter: '^\[app:main\]$'
+    line: ckan.harvest.mq.type = redis
+    state: present
+  notify: reload apache2
+
+- name: "Check if ckanext-harvest database tables initialized flag file `{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized` exists"
+  stat:
+    path: "{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized"
+  register: ckanext_harvest_tables_initialized
+
+- name: "Initialize ckanext-harvest database tables (only if `{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized` file does not exist)"
+  shell: |
+    {{ ckan_virtualenv }}/bin/paster --plugin=ckanext-harvest harvester initdb -c {{ ckan_conf_dir }}/production.ini
+    exit
+  when: ckanext_harvest_tables_initialized.stat.exists == false
+
+- name: "Create ckanext-harvest database tables initialized flag file `{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized`"
+  copy:
+    content: "ckanext-harvest database tables initialized\n"
+    dest: "{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized"
+  when: ckanext_harvest_tables_initialized.stat.exists == false
+  notify: reload apache2
+
+# Setup ckanext-geoview extension (v0.0.16 as of 202003)
+# https://github.com/ckan/ckanext-geoview
+- pip:
+    name: ckanext-geoview==0.0.16
+    virtualenv: "{{ ckan_virtualenv }}"
+
+- name: Check if resource_proxy, geo_view, geojson_view, wmts_view, shp_view plugins are already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*resource_proxy geo_view geojson_view wmts_view shp_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: geoview_plugins_enabled
+
+- name: Enable resource_proxy, geo_view, geojson_view, wmts_view, shp_view plugins in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 resource_proxy geo_view geojson_view wmts_view shp_view'
+    state: present
+  when: not geoview_plugins_enabled.found
+
+- name: Check if geo_view, geojson_view, wmts_view, shp_view views are already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.views\.default_views.*geo_view geojson_view wmts_view shp_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: geoview_views_enabled
+
+- name: Enable geo_view, geojson_view, wmts_view, shp_view views in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.views\.default_views(.*)$)'
+    backrefs: yes
+    line: '\1 geo_view geojson_view wmts_view shp_view'
+    state: present
+  when: not geoview_views_enabled.found
+
+- name: "Add extra spatial settings to `{{ ckan_conf_dir }}/production.ini`"
+  blockinfile:
+    path: "{{ ckan_conf_dir }}/production.ini"
+    block: |
+      #### Extra spatial related settings
+      ckan.spatial.srid = 4326
+      ckanext.spatial.search_backend = solr
+      ckan.resource_proxy.max_file_size = 26214400 # 25 MB * 1024 * 1024
+      ckanext.geoview.ol_viewer.formats = wms wfs geojson gml kml arcgis_rest gft
+      ckanext.geoview.geojson.max_file_size = 26214400 # 25 MB * 1024 * 1024
+      ckanext.geoview.shp_viewer.srid = 4326
+      ckanext.geoview.shp_viewer.encoding = UTF-8
+      ckanext.spatial.common_map.type = custom
+      ckanext.spatial.common_map.custom.url = http://tile.openstreetmap.org/{z}/{x}/{y}.png
+      ckanext.spatial.common_map.attribution = Map tiles & Data by OpenStreetMap, under CC BY SA.
+      ckanext.geoview.basemaps = %(here)s/basemaps.json
+  notify: reload apache2
+
+- name: "Copy CKAN basemaps.json config file from template (only if `{{ ckan_conf_dir }}/basemaps.json` does not exist)"
+  template:
+    src: ../templates/basemaps.json.j2
+    dest: "{{ ckan_conf_dir }}/basemaps.json"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0644
+    force: no
