@@ -79,6 +79,10 @@ SSH to the target server and perform the following steps:
           ```
 * Do some manual configurations
     * TODO
+* Reboot the server
+  ```
+  sudo reboot
+  ```
 * Access the One Data Portal at the server's IP address or domain name on a web browser
     * By default the Data Portal is accessible at http://192.168.1.200
 * Done!
