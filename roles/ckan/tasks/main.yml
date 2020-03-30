@@ -220,6 +220,15 @@
   shell: "/usr/sbin/a2dissite 000-default.conf"
   notify: reload apache2
 
+- name: "Set permissions on CKAN storage path `{{ ckan_storage_path }}` to allow file uploads by Apache process"
+  file:
+    path: "{{ ckan_storage_path }}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+    mode: 0755
+
 - name: Enable CKAN Apache virtualhost site
   shell: "/usr/sbin/a2ensite {{ ckan_site_name }}"
   notify: reload apache2
