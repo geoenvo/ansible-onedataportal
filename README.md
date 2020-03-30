@@ -40,7 +40,7 @@
   
 ## How to run
 SSH to the target server and perform the following steps:
-* Clone this repo
+* Clone this repo (install `git` package if necessary)
   ```
   cd ~
   git clone https://github.com/geoenvo/ansible-onedataportal.git
