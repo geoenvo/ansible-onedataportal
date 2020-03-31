@@ -66,7 +66,7 @@ SSH to the target server and perform the following steps:
         * Must be run in the order of the filename
           ```
           ansible-playbook -K -i inventory 0_provision_server.yml
-            enter the user's sudo password
+            BECOME password: enter the user's sudo password
           ansible-playbook -K -i inventory 1_install_postgresql.yml
           ansible-playbook -K -i inventory 2_install_solr.yml
           ansible-playbook -K -i inventory 3_install_ckan.yml
@@ -76,6 +76,7 @@ SSH to the target server and perform the following steps:
         * This will run the playbooks above in correct order
           ```
           ansible-playbook -K -i inventory install_all.yml
+            BECOME password: enter the user's sudo password
           ```
 * Do some manual configurations
     * TODO

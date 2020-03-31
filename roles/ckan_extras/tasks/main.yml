@@ -18,6 +18,20 @@
     template: template0
     owner: "{{ ckan_db.username }}"
 
+- name: Enable DataStore database writing in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^#ckan.datastore.write_url'
+    line: "ckan.datastore.write_url = postgresql://{{ ckan_db.username }}:{{ ckan_db.password }}@{{ datastore_db.host }}/{{ datastore_db.name }}"
+    state: present
+
+- name: Enable DataStore database reading in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^#ckan.datastore.read_url'
+    line: "ckan.datastore.read_url = postgresql://{{ datastore_db.username }}:{{ datastore_db.password }}@{{ datastore_db.host }}/{{ datastore_db.name }}"
+    state: present
+
 - name: Check if DataStore extension is already enabled in production.ini
   lineinfile:
     dest: "{{ ckan_conf_dir }}/production.ini"
@@ -35,20 +49,7 @@
     line: '\1 datastore'
     state: present
   when: not datastore_enabled.found
-
-- name: Enable DataStore database writing in production.ini
-  lineinfile:
-    dest: "{{ ckan_conf_dir }}/production.ini"
-    regexp: '^#ckan.datastore.write_url'
-    line: "ckan.datastore.write_url = postgresql://{{ ckan_db.username }}:{{ ckan_db.password }}@{{ datastore_db.host }}/{{ datastore_db.name }}"
-    state: present
-
-- name: Enable DataStore database reading in production.ini
-  lineinfile:
-    dest: "{{ ckan_conf_dir }}/production.ini"
-    regexp: '^#ckan.datastore.read_url'
-    line: "ckan.datastore.read_url = postgresql://{{ datastore_db.username }}:{{ datastore_db.password }}@{{ datastore_db.host }}/{{ datastore_db.name }}"
-    state: present
+  notify: reload apache2
 
 - name: "Check if CKAN DataStore database initialized flag file `{{ ckan_conf_dir }}/.datastore_database_initialized` exists"
   stat:
@@ -160,6 +161,13 @@
     virtualenv: "{{ ckan_virtualenv }}"
     state: present
 
+- name: Enable redis as harvest mq in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    insertafter: '^\[app:main\]$'
+    line: ckan.harvest.mq.type = redis
+    state: present
+
 - name: Check if harvest and ckan_harvester plugins are already enabled in production.ini
   lineinfile:
     dest: "{{ ckan_conf_dir }}/production.ini"
@@ -177,13 +185,6 @@
     line: '\1 harvest ckan_harvester'
     state: present
   when: not harvest_plugins_enabled.found
-
-- name: Enable redis as harvest mq in production.ini
-  lineinfile:
-    dest: "{{ ckan_conf_dir }}/production.ini"
-    insertafter: '^\[app:main\]$'
-    line: ckan.harvest.mq.type = redis
-    state: present
   notify: reload apache2
 
 - name: "Check if ckanext-harvest database tables initialized flag file `{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized` exists"
@@ -204,47 +205,12 @@
   when: ckanext_harvest_tables_initialized.stat.exists == false
   notify: reload apache2
 
-# Setup ckanext-geoview extension (v0.0.16 as of 202003)
+# Setup ckanext-geoview extension (version 0.0.16 as of 202003)
 # https://github.com/ckan/ckanext-geoview
-- pip:
-    name: ckanext-geoview==0.0.16
+- name: "Install ckanext-geoview extension version {{ ckanext_geoview_version }}"
+  pip:
+    name: "ckanext-geoview=={{ ckanext_geoview_version }}"
     virtualenv: "{{ ckan_virtualenv }}"
-
-- name: Check if resource_proxy, geo_view, geojson_view, wmts_view, shp_view plugins are already enabled in production.ini
-  lineinfile:
-    dest: "{{ ckan_conf_dir }}/production.ini"
-    regexp: '^ckan\.plugins.*resource_proxy geo_view geojson_view wmts_view shp_view.*$'
-    state: absent
-  check_mode: yes
-  changed_when: false
-  register: geoview_plugins_enabled
-
-- name: Enable resource_proxy, geo_view, geojson_view, wmts_view, shp_view plugins in production.ini
-  lineinfile:
-    dest: "{{ ckan_conf_dir }}/production.ini"
-    regexp: '^(ckan\.plugins(.*)$)'
-    backrefs: yes
-    line: '\1 resource_proxy geo_view geojson_view wmts_view shp_view'
-    state: present
-  when: not geoview_plugins_enabled.found
-
-- name: Check if geo_view, geojson_view, wmts_view, shp_view views are already enabled in production.ini
-  lineinfile:
-    dest: "{{ ckan_conf_dir }}/production.ini"
-    regexp: '^ckan\.views\.default_views.*geo_view geojson_view wmts_view shp_view.*$'
-    state: absent
-  check_mode: yes
-  changed_when: false
-  register: geoview_views_enabled
-
-- name: Enable geo_view, geojson_view, wmts_view, shp_view views in production.ini
-  lineinfile:
-    dest: "{{ ckan_conf_dir }}/production.ini"
-    regexp: '^(ckan\.views\.default_views(.*)$)'
-    backrefs: yes
-    line: '\1 geo_view geojson_view wmts_view shp_view'
-    state: present
-  when: not geoview_views_enabled.found
 
 - name: "Add extra spatial settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
@@ -264,6 +230,44 @@
       ckanext.geoview.basemaps = %(here)s/basemaps.json
   notify: reload apache2
 
+- name: Check if resource_proxy, geo_view, geojson_view, wmts_view, shp_view plugins are already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*resource_proxy geo_view geojson_view wmts_view shp_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: geoview_plugins_enabled
+
+- name: Enable resource_proxy, geo_view, geojson_view, wmts_view, shp_view plugins in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 resource_proxy geo_view geojson_view wmts_view shp_view'
+    state: present
+  when: not geoview_plugins_enabled.found
+  notify: reload apache2
+
+- name: Check if geo_view, geojson_view, wmts_view, shp_view views are already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.views\.default_views.*geo_view geojson_view wmts_view shp_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: geoview_views_enabled
+
+- name: Enable geo_view, geojson_view, wmts_view, shp_view views in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.views\.default_views(.*)$)'
+    backrefs: yes
+    line: '\1 geo_view geojson_view wmts_view shp_view'
+    state: present
+  when: not geoview_views_enabled.found
+  notify: reload apache2
+
 - name: "Copy CKAN basemaps.json config file from template (only if `{{ ckan_conf_dir }}/basemaps.json` does not exist)"
   template:
     src: ../templates/basemaps.json.j2
@@ -272,3 +276,85 @@
     group: "{{ ckan_user.name }}"
     mode: 0644
     force: no
+
+# Setup CKAN DataPusher service (version 0.0.15 as of 202003)
+# https://docs.ckan.org/projects/datapusher/en/latest/deployment.html
+- name: "Install DataPusher service from `{{ ckan_datapusher_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckan_datapusher_src_url }}"
+    virtualenv: "{{ ckan_datapusher_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Install ckanext-spatial package requirements from `{{ ckan_virtualenv }}/src/datapusher/requirements.txt`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    requirements: "{{ ckan_datapusher_virtualenv }}/src/datapusher/requirements.txt"
+    virtualenv: "{{ ckan_datapusher_virtualenv }}"
+    state: present
+
+- name: "[FIX] Upgrade CKAN Service Provider package from v 0.0.8 to 0.0.9 to fix package conflict in DataPusher v 0.0.15"
+  pip:
+    name: ckanserviceprovider==0.0.9
+    virtualenv: "{{ ckan_datapusher_virtualenv }}"
+  when: fix_datapusher_0_0_15_package_conflict
+
+- name: Copy DataPusher Apache virtualhost config file to `/etc/apache2/sites-available/datapusher.conf`
+  shell: "cp {{ ckan_datapusher_virtualenv }}/src/datapusher/deployment/datapusher.apache2-4.conf /etc/apache2/sites-available/datapusher.conf"
+
+- name: "Copy DataPusher WSGI config file to `{{ root_conf_dir }}/datapusher.wsgi`"
+  shell: "cp {{ ckan_datapusher_virtualenv }}/src/datapusher/deployment/datapusher.wsgi {{ root_conf_dir }}"
+
+- name: "Copy DataPusher settings file to `{{ root_conf_dir }}/datapusher_settings.py`"
+  shell: "cp {{ ckan_datapusher_virtualenv }}/src/datapusher/deployment/datapusher_settings.py {{ root_conf_dir }}"
+
+- name: Enable DataPusher formats in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^#ckan\.datapusher\.formats(.*)$'
+    backrefs: yes
+    line: 'ckan.datapusher.formats\1'
+    state: present
+
+- name: Enable DataPusher url in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^#ckan\.datapusher\.url(.*)$'
+    backrefs: yes
+    line: 'ckan.datapusher.url\1'
+    state: present
+
+- name: Check if DataPusher is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*datapusher.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: datapusher_enabled
+
+- name: Enable DataPusher in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 datapusher'
+    state: present
+  when: not datapusher_enabled.found
+  notify: reload apache2
+
+- name: Add DataPusher port settings to `/etc/apache2/ports.conf` (listen on port 8800)
+  blockinfile:
+    path: /etc/apache2/ports.conf
+    block: |
+      #### CKAN DataPusher service port settings
+      NameVirtualHost *:8800
+      Listen 8800
+  notify: reload apache2
+
+- name: Enable DataPusher Apache virtualhost site
+  shell: /usr/sbin/a2ensite datapusher
+  notify: reload apache2

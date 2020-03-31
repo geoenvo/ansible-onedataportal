@@ -1,5 +1,5 @@
 ---
-- name: "Install DataStore, ckanext-spatial, ckanext-geoview extensions for CKAN {{ ckan_version }}"
+- name: "Install DataStore, ckanext-spatial, ckanext-geoview, DataPusher extensions for CKAN {{ ckan_version }}"
   hosts: all
   become: true
   
