@@ -57,10 +57,18 @@ ckan_datapusher_src_url: "git+https://github.com/ckan/datapusher.git@{{ ckan_dat
 ckan_datapusher_virtualenv: "{{ ckan_user.home_path }}/datapusher"
 fix_datapusher_0_0_15_package_conflict: true
 ckanext_geoview_version: 0.0.16
+pycsw_version: 2.4.2
+pycsw_src_url: "git+https://github.com/geopython/pycsw.git@{{ pycsw_version }}#egg=pycsw"
 datastore_db: {
   username: "datastore_default",
   password: "changethispassword",
   role_attr_flags: "NOSUPERUSER,NOCREATEDB,NOCREATEROLE",
   name: "datastore_default",
+  host: "localhost"
+}
+pycsw_db: {
+  username: "{{ ckan_db.username }}",
+  password: "{{ ckan_db.password }}",
+  name: "pycsw",
   host: "localhost"
 }

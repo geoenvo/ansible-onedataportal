@@ -279,6 +279,7 @@
 
 # Setup CKAN DataPusher service (version 0.0.15 as of 202003)
 # https://docs.ckan.org/projects/datapusher/en/latest/deployment.html
+# https://github.com/ckan/datapusher
 - name: "Install DataPusher service from `{{ ckan_datapusher_src_url }}`"
   become: true
   become_user: "{{ ckan_user.name }}"
@@ -358,3 +359,59 @@
 - name: Enable DataPusher Apache virtualhost site
   shell: /usr/sbin/a2ensite datapusher
   notify: reload apache2
+
+# Setup pycsw service (version 2.4.2 as of 202003)
+# https://docs.ckan.org/projects/ckanext-spatial/en/latest/csw.html
+# https://github.com/geopython/pycsw
+- name: "Install pycsw service from `{{ pycsw_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ pycsw_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Copy pycsw config file from template
+  template:
+    src: ../templates/pycsw.cfg.j2
+    dest: "{{ ckan_conf_dir }}/pycsw.cfg"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0644
+
+- name: Create pycsw PostgreSQL database `{{ pycsw_db.name }}` owned by `{{ pycsw_db.username }}`"
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ pycsw_db.name }}"
+    encoding: UTF-8
+    template: template0
+    owner: "{{ pycsw_db.username }}"
+
+- name: Enable PostGIS extension on pycsw database
+  become: true
+  become_user: postgres
+  become_method: sudo
+  shell: |
+    psql -d {{ pycsw_db.name }} -c "CREATE EXTENSION postgis; CREATE EXTENSION postgis_topology;"
+    psql -d {{ pycsw_db.name }} -c "ALTER VIEW geometry_columns OWNER TO {{ pycsw_db.username }};"
+    psql -d {{ pycsw_db.name }} -c "ALTER TABLE spatial_ref_sys OWNER TO {{ pycsw_db.username }};"
+    exit
+
+- name: "Check if pycsw database tables initialized flag file `{{ ckan_conf_dir }}/.pycsw_tables_initialized` exists"
+  stat:
+    path: "{{ ckan_conf_dir }}/.pycsw_tables_initialized"
+  register: pycsw_tables_initialized
+
+- name: "Initialize pycsw database tables (only if `{{ ckan_conf_dir }}/.pycsw_tables_initialized` file does not exist)"
+  shell: |
+    {{ ckan_virtualenv }}/bin/paster --plugin=ckanext-spatial ckan-pycsw setup -p {{ ckan_conf_dir }}/pycsw.cfg
+    exit
+  when: pycsw_tables_initialized.stat.exists == false
+
+- name: "Create pycsw database tables initialized flag file `{{ ckan_conf_dir }}/.pycsw_tables_initialized`"
+  copy:
+    content: "pycsw database tables initialized\n"
+    dest: "{{ ckan_conf_dir }}/.pycsw_tables_initialized"
+  when: pycsw_tables_initialized.stat.exists == false
