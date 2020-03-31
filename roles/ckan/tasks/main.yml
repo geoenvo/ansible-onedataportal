@@ -33,11 +33,11 @@
   args:
     creates: /etc/apache2/ports.conf.orig
 
-- name: Modify Apache to switch listening from port 80 to 8080
+- name: Modify Apache to switch listening from port 80 to {{ ckan_apache_virtualhost_port }}
   lineinfile:
     dest: "/etc/apache2/ports.conf"
     regexp: '^Listen 80'
-    line: "Listen 8080"
+    line: "Listen {{ ckan_apache_virtualhost_port }}"
     state: present
   notify: reload apache2
 
