@@ -4,3 +4,4 @@
 - include: 2_install_solr.yml
 - include: 3_install_ckan.yml
 - include: 4_install_ckan_extras.yml
+- include: 5_install_oskari.yml

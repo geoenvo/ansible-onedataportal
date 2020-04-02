@@ -3,7 +3,7 @@
 
 ## Requirements
 ### Target server
-* A fresh installed [Ubuntu Server 18.04](https://ubuntu.com/download/server) with a user that is part of the `sudo` group (IMPORTANT: using the root user is not recommended since by default the server provisioning playbook will disable root user login for better security)
+* A fresh installed [Ubuntu Server 18.04](https://ubuntu.com/download/server) with a user that is part of the `sudo` group (IMPORTANT: using the root user is not recommended since by default the server provisioning playbook `0_provision_server.yml` will disable root user login for better security)
   ```
   adduser username
   usermod -aG sudo username
@@ -47,17 +47,17 @@ SSH to the target server and perform the following steps:
   cd ansible-onedataportal
   ```
 * Configure the mandatory playbook variables
-    * vi 0_provision_server.yml
+    * nano 0_provision_server.yml
       ```
       server_timezone: set this to the server's timezone (default is Asia/Jakarta)
       ```
-    * vi 1_install_postgresql.yml
+    * nano 1_install_postgresql.yml
       ```
       postgres_user_password: the password for the default postgres role
       ```
-    * vi vars_ckan.yml
+    * nano vars_ckan.yml
       ```
-      ckan_site_url: set this to the IP address of the server (default is http://192.168.1.200)
+      ckan_site_url: set this to the IP address or domain name of the server (default is http://192.168.1.200)
       ckan_admin.username: set the username for the CKAN admin user (default is admin)
       ckan_admin.password: set the default password for the CKAN admin user
       ```
@@ -71,6 +71,7 @@ SSH to the target server and perform the following steps:
           ansible-playbook -K -i inventory 2_install_solr.yml
           ansible-playbook -K -i inventory 3_install_ckan.yml
           ansible-playbook -K -i inventory 4_install_ckan_extras.yml
+          ansible-playbook -K -i inventory 5_install_oskari.yml
           ```
     * Or run the install all playbook
         * This will run the playbooks above in correct order
@@ -78,12 +79,22 @@ SSH to the target server and perform the following steps:
           ansible-playbook -K -i inventory install_all.yml
             BECOME password: enter the user's sudo password
           ```
-* Do some manual configurations
+* Some manual configuration might be needed to achieve the following (this is optional):
+    * Configure firewall to further secure the server
+    * Reverse proxy a (sub)domain with SSL certificate
+    * Change the default passwords for CKAN/Oskari/GeoServer
+    * Modify advanced CKAN and Oskari settings
+    * Using and updating a non-english localization
     * TODO
 * Reboot the server
   ```
   sudo reboot
   ```
-* Access the One Data Portal at the server's IP address or domain name on a web browser
-    * By default the CKAN Data Portal is accessible at http://192.168.1.200
+* Access the One Data Portal at the server's IP address or domain name on a web browser:
+    * By default the CKAN Data Portal is accessible at http://the.server.ip.address
+    * CKAN DataPusher service at http://the.server.ip.address:8800/
+    * pycsw service at http://the.server.ip.address:8000/?service=CSW&version=2.0.2&request=GetCapabilities
+    * Solr admin at http://the.server.ip.address:8983/solr/
+    * Oskari Geoportal at http://the.server.ip.address:8080
+    * GeoServer admin at http://the.server.ip.address:8082/geoserver/web
 * Done!

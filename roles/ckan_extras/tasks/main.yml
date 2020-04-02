@@ -280,6 +280,11 @@
 # Setup CKAN DataPusher service (version 0.0.15 as of 202003)
 # https://docs.ckan.org/projects/datapusher/en/latest/deployment.html
 # https://github.com/ckan/datapusher
+- name: "Check if DataPusher installed flag file `{{ ckan_conf_dir }}/.ckan_datapusher_installed` exists"
+  stat:
+    path: "{{ ckan_conf_dir }}/.ckan_datapusher_installed"
+  register: ckan_datapusher_installed
+
 - name: "Install DataPusher service from `{{ ckan_datapusher_src_url }}`"
   become: true
   become_user: "{{ ckan_user.name }}"
@@ -288,6 +293,7 @@
     virtualenv: "{{ ckan_datapusher_virtualenv }}"
     editable: yes
     state: present
+  when: ckan_datapusher_installed.stat.exists == false
 
 - name: "Install ckanext-spatial package requirements from `{{ ckan_virtualenv }}/src/datapusher/requirements.txt`"
   become: true
@@ -296,12 +302,13 @@
     requirements: "{{ ckan_datapusher_virtualenv }}/src/datapusher/requirements.txt"
     virtualenv: "{{ ckan_datapusher_virtualenv }}"
     state: present
+  when: ckan_datapusher_installed.stat.exists == false
 
 - name: "[FIX] Upgrade CKAN Service Provider package from v 0.0.8 to 0.0.9 to fix package conflict in DataPusher v 0.0.15"
   pip:
     name: ckanserviceprovider==0.0.9
     virtualenv: "{{ ckan_datapusher_virtualenv }}"
-  when: fix_datapusher_0_0_15_package_conflict
+  when: ckan_datapusher_installed.stat.exists == false and fix_datapusher_0_0_15_package_conflict == true
 
 - name: Copy DataPusher Apache virtualhost config file to `/etc/apache2/sites-available/datapusher.conf`
   shell: "cp {{ ckan_datapusher_virtualenv }}/src/datapusher/deployment/datapusher.apache2-4.conf /etc/apache2/sites-available/datapusher.conf"
@@ -360,6 +367,12 @@
   shell: /usr/sbin/a2ensite datapusher
   notify: reload apache2
 
+- name: "Create DataPusher installed flag file `{{ ckan_conf_dir }}/.ckan_datapusher_installed`"
+  copy:
+    content: "CKAN DataPusher installed\n"
+    dest: "{{ ckan_conf_dir }}/.ckan_datapusher_installed"
+  when: ckan_datapusher_installed.stat.exists == false
+
 # Setup pycsw service (version 2.4.2 as of 202003)
 # https://docs.ckan.org/projects/ckanext-spatial/en/latest/csw.html
 # https://github.com/geopython/pycsw
@@ -375,10 +388,18 @@
 - name: Copy pycsw config file from template
   template:
     src: ../templates/pycsw.cfg.j2
-    dest: "{{ ckan_conf_dir }}/pycsw.cfg"
+    dest: "{{ ckan_virtualenv }}/src/pycsw/default.cfg"
     owner: "{{ ckan_user.name }}"
     group: "{{ ckan_user.name }}"
     mode: 0644
+
+- name: Create symlink from pycsw `default.cfg` to `pycsw.cfg` CKAN config directory
+  file:
+    src: "{{ ckan_virtualenv }}/src/pycsw/default.cfg"
+    dest: "{{ ckan_conf_dir }}/pycsw.cfg"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    state: link
 
 - name: Create pycsw PostgreSQL database `{{ pycsw_db.name }}` owned by `{{ pycsw_db.username }}`"
   become: true
@@ -415,3 +436,10 @@
     content: "pycsw database tables initialized\n"
     dest: "{{ ckan_conf_dir }}/.pycsw_tables_initialized"
   when: pycsw_tables_initialized.stat.exists == false
+
+- name: "Install cron job to run pycsw service on @reboot"
+  cron:
+    name: "start pycsw"
+    state: present
+    special_time: reboot
+    job: "{{ ckan_virtualenv }}/bin/python {{ ckan_virtualenv }}/src/pycsw/pycsw/wsgi.py >> /var/log/pycsw.log 2>&1"
