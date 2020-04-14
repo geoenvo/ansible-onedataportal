@@ -11,7 +11,8 @@
     #oskari_jetty_bundle_archive_url: "https://www.oskari.org/build/server/{{ oskari_jetty_bundle_archive }}"
     # use github repo mirror
     #oskari_jetty_bundle_archive_url: "https://github.com/geoenvo/ansible-onedataportal/releases/download/mirror_oskari/{{ oskari_jetty_bundle_archive }}"
-    oskari_jetty_bundle_archive_url: "https://github.com/geoenvo/ansible-onedataportal/releases/download/mirror_oskari_1.54.1/{{ oskari_jetty_bundle_archive }}"
+    #oskari_jetty_bundle_archive_url: "https://github.com/geoenvo/ansible-onedataportal/releases/download/mirror_oskari_1.54.1/{{ oskari_jetty_bundle_archive }}"
+    oskari_jetty_bundle_archive_url: "https://github.com/geoenvo/ansible-onedataportal/releases/download/mirror_oskari_1.55.2/{{ oskari_jetty_bundle_archive }}"
     geoserver_version: 2.13.2
     geoserver_war_archive: "geoserver-{{ geoserver_version }}-war.zip"
     #geoserver_war_archive_url: "http://sourceforge.net/projects/geoserver/files/GeoServer/{{ geoserver_version }}/{{ geoserver_war_archive }}"
