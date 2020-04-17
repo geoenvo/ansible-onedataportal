@@ -12,6 +12,10 @@
     line: "%wheel ALL=(ALL:ALL) ALL"
     validate: "/usr/sbin/visudo -cf %s"
 
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
 - name: Install the `sudo` package
   package:
     name: sudo

@@ -80,21 +80,23 @@ SSH to the target server and perform the following steps:
             BECOME password: enter the user's sudo password
           ```
 * Some manual configuration might be needed to achieve the following (this is optional):
-    * Configure firewall to further secure the server
-    * Reverse proxy a (sub)domain with SSL certificate
-    * Change the default passwords for CKAN/Oskari/GeoServer
-    * Modify advanced CKAN and Oskari settings
-    * Using and updating a non-english localization
-    * TODO
+  * Configure firewall to further secure the server
+  * Reverse proxy a (sub)domain with SSL certificate
+  * Change the default passwords for CKAN/Oskari/GeoServer
+  * Modify advanced CKAN and Oskari settings
+      * Default CKAN configuration file path is `/etc/ckan/ckan/production.ini`
+      * Default Oskari configuration file path is `/opt/oskari/oskari-server/resources/oskari-ext.properties`
+  * Using and updating a non-english localization
+  * TODO
 * Reboot the server
   ```
   sudo reboot
   ```
 * Access the One Data Portal at the server's IP address or domain name on a web browser:
-    * By default the CKAN Data Portal is accessible at http://the.server.ip.address
-    * CKAN DataPusher service at http://the.server.ip.address:8800/
-    * pycsw service at http://the.server.ip.address:8000/?service=CSW&version=2.0.2&request=GetCapabilities
-    * Solr admin at http://the.server.ip.address:8983/solr/
-    * Oskari Geoportal at http://the.server.ip.address:8080
-    * GeoServer admin at http://the.server.ip.address:8082/geoserver/web
+  * By default the CKAN Data Portal is accessible at http://the.server.ip.address (reverse proxied by NGINX from http://the.server.ip.address:8090)
+  * CKAN DataPusher service at http://the.server.ip.address:8800/
+  * pycsw service at http://the.server.ip.address:8000/?service=CSW&version=2.0.2&request=GetCapabilities
+  * Solr admin at http://the.server.ip.address:8983/solr/
+  * Oskari Geoportal at http://the.server.ip.address:8080
+  * GeoServer admin at http://the.server.ip.address:8082/geoserver/web
 * Done!

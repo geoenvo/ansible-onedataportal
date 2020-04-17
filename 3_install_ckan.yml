@@ -2,7 +2,7 @@
 - name: "Install CKAN {{ ckan_version }} and reverse proxy with NGINX (CKAN Site URL accessible at {{ ckan_site_url }})"
   hosts: all
   become: true
-  
+
   vars_files:
     - vars_ckan.yml
 

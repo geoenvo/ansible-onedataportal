@@ -6,7 +6,8 @@
   vars:
     solr_version: 6.5.1
     solr_archive: "solr-{{ solr_version }}.tgz"
-    solr_archive_url: "http://archive.apache.org/dist/lucene/solr/{{ solr_version }}/{{ solr_archive }}"
+    #solr_archive_url: "http://archive.apache.org/dist/lucene/solr/{{ solr_version }}/{{ solr_archive }}"
+    solr_archive_url: "https://github.com/geoenvo/ansible-onedataportal/releases/download/mirror_solr/{{ solr_archive }}"
     working_dir: /tmp
 
   roles:

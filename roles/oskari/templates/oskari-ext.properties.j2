@@ -10,6 +10,7 @@ flyway.1_45_0.skip=true
 # NOTE! 'example' module creates example appsetups and adds new functionalities assuming they are not customized!
 # NOTE! If you have custom application REPLACE 'example' with app-specific module!
 db.additional.modules=myplaces, userlayer, example
+# add example3d to db.additional.modules for enabling an example setup with 3D functionalities (builds on/requires example module as well)
 
 # Use autorepair to fix an issue with SQL-script checksums.
 # Checksums fail if an updated war-file includes different line-endings than the original one.
@@ -29,8 +30,7 @@ db.password=oskari
 
 # set development to false or comment it out to disable server side localization caching
 development=true
-#oskari.client.version=dist/1.2.0
-oskari.client.version=dist/1.1.1
+oskari.client.version=dist/1.2.1
 
 # initialized the user content like myplaces baselayers with this srs 
 # layers are also updated by setup.war if used to generate GeoServer config
@@ -76,6 +76,9 @@ view.published.usage.unrestrictedDomains = localhost
 
 # "CMS content" files location
 actionhandler.GetArticlesByTag.dir=/articlesByTag/
+
+# Uncomment to enable persistent session using Redis
+#oskari.profiles=redis-session
 
 ##################################
 # User handling

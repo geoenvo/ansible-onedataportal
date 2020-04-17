@@ -1,7 +1,7 @@
 ---
-- include: 0_provision_server.yml
-- include: 1_install_postgresql.yml
-- include: 2_install_solr.yml
-- include: 3_install_ckan.yml
-- include: 4_install_ckan_extras.yml
-- include: 5_install_oskari.yml
+- import_playbook: 0_provision_server.yml
+- import_playbook: 1_install_postgresql.yml
+- import_playbook: 2_install_solr.yml
+- import_playbook: 3_install_ckan.yml
+- import_playbook: 4_install_ckan_extras.yml
+- import_playbook: 5_install_oskari.yml
