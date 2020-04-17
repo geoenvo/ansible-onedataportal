@@ -51,15 +51,15 @@ SSH to the target server and perform the following steps:
   cd ansible-onedataportal
   ```
 * Configure the mandatory playbook variables
-  * nano 0_provision_server.yml
+  * ```nano 0_provision_server.yml```
     ```
     server_timezone: set this to the server's timezone (default is Asia/Jakarta)
     ```
-  * nano 1_install_postgresql.yml
+  * ```nano 1_install_postgresql.yml```
     ```
     postgres_user_password: the password for the default postgres role
     ```
-  * nano vars_ckan.yml
+  * ```nano vars_ckan.yml```
     ```
     ckan_site_url: set this to the IP address or domain name of the server (default is http://192.168.1.200)
     ckan_admin.username: set the username for the CKAN admin user (default is admin)
