@@ -229,6 +229,42 @@
     group: www-data
     mode: 0755
 
+- name: Backup `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.po` if backup file `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.po.orig` does not exist
+  shell: "cp {{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.po {{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.po.orig"
+  args:
+    creates: "{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.po.orig"
+
+- name: Backup `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo` if backup file `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo.orig` does not exist
+  shell: "cp {{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo {{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo.orig"
+  args:
+    creates: "{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo.orig"
+
+- name: "Copy CKAN Indonesian translation file from template to `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.po`"
+  template:
+    src: ../templates/ckan.po.j2
+    dest: "{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.po"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0644
+  notify: reload apache2
+
+- name: "Copy CKAN Indonesian compiled translation file from template to `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo`"
+  template:
+    src: ../templates/ckan.mo.j2
+    dest: "{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0644
+  notify: reload apache2
+
+- name: "Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by Apache process"
+  file:
+    path: "{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n"
+    state: directory
+    recurse: yes
+    owner: www-data
+    mode: 0744
+
 - name: Enable CKAN Apache virtualhost site
   shell: "/usr/sbin/a2ensite {{ ckan_site_name }}"
   notify: reload apache2
