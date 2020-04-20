@@ -57,6 +57,22 @@
     group: root
     mode: 0644
 
+- name: Copy `oskari_lang_id.js` settings file for Oskari from template
+  template:
+    src: ../templates/oskari_lang_id.js.j2
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` settings file for Oskari from template
+  template:
+    src: ../templates/oskari_lang_in.js.j2
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Copy `start.ini` settings file for Jetty from template
   template:
     src: ../templates/start.ini.j2

@@ -24,13 +24,13 @@ db.additional.modules=myplaces, userlayer, example
 ##################################
 
 # change to match your database connection parameters
-db.url=jdbc:postgresql://localhost:5432/oskaridb
-db.username=oskari
-db.password=oskari
+db.url=jdbc:postgresql://localhost:5432/{{ oskari_db.name }}
+db.username={{ oskari_db.username }}
+db.password={{ oskari_db.password }}
 
 # set development to false or comment it out to disable server side localization caching
 development=true
-oskari.client.version=dist/1.2.1
+oskari.client.version=dist/{{ oskari_client_version }}
 
 # initialized the user content like myplaces baselayers with this srs 
 # layers are also updated by setup.war if used to generate GeoServer config
@@ -48,7 +48,7 @@ geoserver.password=geoserver
 oskari.logger=fi.nls.oskari.utils.Log4JLogger
 
 # this is used as baseurl for published maps (external url)
-oskari.domain=http://localhost:8080
+oskari.domain={{ oskari_domain }}
 
 # path for incoming calls to access map
 oskari.map.url=/
