@@ -76,24 +76,24 @@
     mode: 0644
 
 - name: Copy `oskari_lang_id.js` file for Oskari from template
-  template:
-    src: ../templates/oskari_lang_id.js.j2
+  copy:
+    src: ../templates/oskari_lang_id.js
     dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js"
     owner: root
     group: root
     mode: 0644
 
 - name: Copy `oskari_lang_in.js` file for Oskari from template
-  template:
-    src: ../templates/oskari_lang_in.js.j2
+  copy:
+    src: ../templates/oskari_lang_in.js
     dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_in.js"
     owner: root
     group: root
     mode: 0644
 
 - name: Copy `userguide.html` file for Oskari from template
-  template:
-    src: ../templates/userguide.html.j2
+  copy:
+    src: ../templates/userguide.html
     dest: "{{ install_dir_oskari }}/oskari-server/resources/articlesByTag/userguide.html"
     owner: root
     group: root
