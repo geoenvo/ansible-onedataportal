@@ -3,7 +3,7 @@
 
 ## Requirements
 ### Target server
-* A fresh installed [Ubuntu Server 18.04](https://ubuntu.com/download/server) with a user that is part of the `sudo` group (IMPORTANT: using the root user is not recommended since by default the server provisioning playbook `0_provision_server.yml` will disable root user login for better security)
+* A fresh installed [Ubuntu Server 18.04](https://ubuntu.com/download/server) with a user that is part of the `sudo` group (IMPORTANT: using the root user is not recommended since by default the server provisioning playbook `0_provision_server.yml` will disable root user login for better security). Below is an example of a user called `username` that is created and added to the `sudo` group. 
   ```
   adduser username
   usermod -aG sudo username
@@ -61,9 +61,13 @@ SSH to the target server and perform the following steps:
     ```
   * ```nano vars_ckan.yml```
     ```
-    ckan_site_url: set this to the IP address or domain name of the server (default is http://192.168.1.200)
+    ckan_site_url: set this to the IP address or domain name of the server where CKAN will be accessed (default is http://192.168.1.200)
     ckan_admin.username: set the username for the CKAN admin user (default is admin)
     ckan_admin.password: set the default password for the CKAN admin user
+    ```
+  * ```nano vars_oskari.yml```
+    ```
+    oskari_domain: set this to the IP address or domain name of the server where Oskari will be accessed (default is http://192.168.1.200:8080)
     ```
 * Run the playbooks
     * One by one
@@ -91,7 +95,7 @@ SSH to the target server and perform the following steps:
       * Default CKAN configuration file path is `/etc/ckan/ckan/production.ini`
       * Default Oskari configuration file path is `/opt/oskari/oskari-server/resources/oskari-ext.properties`
   * Using and updating a non-english localization
-  * Check this repo's wiki TODO
+  * Check this repo's wiki
 * Reboot the server
   ```
   sudo reboot
