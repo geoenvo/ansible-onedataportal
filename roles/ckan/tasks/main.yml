@@ -248,10 +248,13 @@
     mode: 0644
   notify: reload apache2
 
-- name: "Copy CKAN Indonesian compiled translation file from template to `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo`"
-  template:
-    src: ../templates/ckan.mo.j2
+- name: "Copy CKAN Indonesian compiled translation file to `{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo`"
+  copy:
+    src: ../templates/ckan.mo
     dest: "{{ ckan_virtualenv }}/src/ckan/ckan/i18n/id/LC_MESSAGES/ckan.mo"
+    owner: "{{ ckan_user.name }}"
+    group: "{{ ckan_user.name }}"
+    mode: 0644
   notify: reload apache2
 
 - name: "Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by Apache process"
