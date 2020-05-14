@@ -1,5 +1,5 @@
 # ansible-onedataportal
-[Ansible](https://docs.ansible.com) playbooks for automatic deployment of the One Data Portal.
+[Ansible](https://docs.ansible.com) playbooks for automatic deployment of the One Data Portal (Portal Satu Data) comprising of [CKAN](https://ckan.org) version 2.8.3 and [Oskari](https://www.oskari.org/) version 1.55.2.
 
 ## Requirements
 ### Target server
