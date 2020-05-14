@@ -8,7 +8,7 @@
   adduser username
   usermod -aG sudo username
   ```
-* The server is fully updated and configured with a static IP address (below is an example setting the server IP address to 192.168.1.200)
+* The server is fully updated and configured with a static IP address (below is an example setting the server IP address to 192.168.1.200 on the enp0s3 network interface, check the available interface name with `ifconfig`)
   ```
   sudo apt update && sudo apt upgrade
   sudo nano /etc/netplan/50-cloud-init.yaml
@@ -25,6 +25,7 @@
      version: 2
   ```
   ```
+  sudo netplan apply
   sudo reboot
   ```
 * Ansible installed on the target server
