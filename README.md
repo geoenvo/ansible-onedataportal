@@ -8,7 +8,7 @@
   adduser username
   usermod -aG sudo username
   ```
-* The server is fully updated and configured with a static IP address (below is an example setting the server IP address to 192.168.1.200 on the enp0s3 network interface, check the available interface name with `ifconfig`)
+* The server is fully updated and configured with a static IP address (below is an example setting the server IP address to 192.168.1.200 on the `enp0s3` network interface, check the available interface name with `ifconfig`)
   ```
   sudo apt update && sudo apt upgrade
   sudo nano /etc/netplan/50-cloud-init.yaml
@@ -82,11 +82,19 @@ SSH to the target server and perform the following steps:
         ansible-playbook -K -i inventory 4_install_ckan_extras.yml
         ansible-playbook -K -i inventory 5_install_oskari.yml
         ```
-    * Or run the install all playbook
-      * This will run the playbooks above in correct order
+    * Or run the install all playbook to install everything in order
+      * This will run the playbooks above in correct order from 1 to 5
         ```
         ansible-playbook -K -i inventory install_all.yml
           BECOME password: enter the user's sudo password
+        ```
+    * Optional: install the development tools for customizing/building Oskari components
+      * Refer to https://oskari.org/documentation/backend/setup-development
+      * PostgreSQL and PostGIS must be installed first if they haven't been installed above
+        ```
+        ansible-playbook -K -i inventory 1_install_postgresql.yml
+          BECOME password: enter the user's sudo password
+        ansible-playbook -K -i inventory 6_setup_oskari_development.yml
         ```
 * Some manual configuration might be needed to achieve the following (this is optional):
   * Configure firewall to further secure the server
@@ -96,7 +104,8 @@ SSH to the target server and perform the following steps:
       * Default CKAN configuration file path is `/etc/ckan/ckan/production.ini`
       * Default Oskari configuration file path is `/opt/oskari/oskari-server/resources/oskari-ext.properties`
   * Using and updating a non-english localization
-  * Check this repo's wiki
+  * Building Oskari frontend and server components
+  * Check this repo's wiki for more details
 * Reboot the server
   ```
   sudo reboot
