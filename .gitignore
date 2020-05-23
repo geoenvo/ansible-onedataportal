@@ -1,0 +1,6 @@
+*.pyc
+*.log
+*.bak
+*.pid
+*.DS_Store
+.idea
