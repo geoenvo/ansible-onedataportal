@@ -1,0 +1,10 @@
+---
+- name: "Setup Denpasar municipality version of Oskari"
+  hosts: all
+  become: true
+
+  vars_files:
+    - vars_oskari.yml
+
+  roles:
+    - oskari_denpasar

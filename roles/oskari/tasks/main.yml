@@ -8,7 +8,7 @@
     name: openjdk-8-jdk
     state: latest
 
-- name: "Set `JAVA_HOME` environment variable"
+- name: Set `JAVA_HOME` environment variable
   lineinfile:
     dest: /etc/environment
     line: JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
@@ -75,7 +75,7 @@
     group: root
     mode: 0644
 
-- name: Copy `oskari_lang_id.js` file for Oskari from template
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `geoportal`
   copy:
     src: ../templates/oskari_lang_id.js
     dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js"
@@ -83,10 +83,58 @@
     group: root
     mode: 0644
 
-- name: Copy `oskari_lang_in.js` file for Oskari from template
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `geoportal`
   copy:
     src: ../templates/oskari_lang_in.js
     dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `geoportal-3d`
+  copy:
+    src: ../templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `geoportal-3d`
+  copy:
+    src: ../templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `embedded`
+  copy:
+    src: ../templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `embedded`
+  copy:
+    src: ../templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `embedded-3d`
+  copy:
+    src: ../templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `embedded-3d`
+  copy:
+    src: ../templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_in.js"
     owner: root
     group: root
     mode: 0644
@@ -107,7 +155,7 @@
     password: "{{ oskari_db.password }}"
     role_attr_flags: "{{ oskari_db.role_attr_flags }}"
 
-- name: Create Oskari PostgreSQL database `{{ oskari_db.name }}`"
+- name: "Create Oskari PostgreSQL database `{{ oskari_db.name }}`"
   become: true
   become_user: postgres
   postgresql_db:
@@ -132,7 +180,7 @@
     name: tomcat8
     state: latest
 
-- name: "Set `JAVA_HOME` environment variable for Tomcat"
+- name: Set `JAVA_HOME` environment variable for Tomcat
   lineinfile:
     dest: /etc/default/tomcat8
     line: JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
@@ -154,7 +202,7 @@
     password: "{{ geoserver_db.password }}"
     role_attr_flags: "{{ geoserver_db.role_attr_flags }}"
 
-- name: Create GeoServer PostgreSQL database `{{ geoserver_db.name }}`"
+- name: "Create GeoServer PostgreSQL database `{{ geoserver_db.name }}`"
   become: true
   become_user: postgres
   postgresql_db:
@@ -200,7 +248,7 @@
   command: "mv {{ install_dir_oskari }}/oskari-server/webapps/geoserver {{ install_dir_oskari }}/oskari-server"
   when: bundled_geoserver_directory.stat.exists == true
 
-- name: "Deploy geoserver.war to Tomcat webapps directory and wait until it is fully extracted"
+- name: Deploy `geoserver.war` to Tomcat webapps directory and wait until it is fully extracted
   shell: |
     mv {{ working_dir }}/geoserver/geoserver.war /var/lib/tomcat8/webapps/
     sleep 20
