@@ -1,5 +1,5 @@
 ---
-- name: "Clone Denpasar frontend application repo from https://github.com/geoenvo/oskari-application-dps/ to `{{ install_dir_oskari }}/oskari-server/oskari-application-dps`"
+- name: "Clone Oskari Denpasar frontend application repo from `https://github.com/geoenvo/oskari-application-dps/` to `{{ install_dir_oskari }}/oskari-server/oskari-application-dps`"
   git:
     repo: https://github.com/geoenvo/oskari-application-dps.git
     dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps"
@@ -11,13 +11,13 @@
     path: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps"
     state: directory
 
-- name: Run `sudo npm install` in `{{ install_dir_oskari }}/oskari-server/oskari-application-dps`
+- name: "Run `sudo npm install` in `{{ install_dir_oskari }}/oskari-server/oskari-application-dps`"
   shell: |
     cd {{ install_dir_oskari }}/oskari-server/oskari-application-dps
     sudo npm install
     exit
 
-- name: Run `sudo npm run build` in `{{ install_dir_oskari }}/oskari-server/oskari-application-dps`
+- name: "Run `sudo npm run build` in `{{ install_dir_oskari }}/oskari-server/oskari-application-dps`"
   shell: |
     cd {{ install_dir_oskari }}/oskari-server/oskari-application-dps
     sudo npm run build
@@ -37,6 +37,90 @@
   template:
     src: ../templates/oskari-front.xml.j2
     dest: "{{ install_dir_oskari }}/oskari-server/webapps/oskari-front.xml"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Backup `oskari_lang_id.js` file in `geoportal` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `geoportal-3d` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `embedded` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `embedded-3d` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js.orig"
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `geoportal`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `geoportal`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `geoportal-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `geoportal-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `embedded`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `embedded`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `embedded-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `embedded-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-dps/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_in.js"
     owner: root
     group: root
     mode: 0644

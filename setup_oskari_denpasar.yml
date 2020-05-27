@@ -1,5 +1,5 @@
 ---
-- name: "Setup Denpasar municipality version of Oskari"
+- name: "Setup Denpasar municipality version of Oskari {{ oskari_version }}"
   hosts: all
   become: true
 
