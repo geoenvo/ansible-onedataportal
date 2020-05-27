@@ -49,10 +49,25 @@
   args:
     creates: "{{ install_dir_oskari }}/jetty-distribution-9.4.12.v20180830/start.ini.orig"
 
-- name: Backup `oskari_lang_id.js` file if backup file `oskari_lang_id.js.orig` does not exist
+- name: Backup `oskari_lang_id.js` file in `geoportal` if backup file `oskari_lang_id.js.orig` does not exist
   shell: "cp {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js.orig"
   args:
     creates: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `geoportal-3d` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `embedded` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `embedded-3d` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/sample-application/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js.orig"
 
 - name: Backup `userguide.html` file if backup file `userguide.html.orig` does not exist
   shell: "cp {{ install_dir_oskari }}/oskari-server/resources/articlesByTag/userguide.html {{ install_dir_oskari }}/oskari-server/resources/articlesByTag/userguide.html.orig"

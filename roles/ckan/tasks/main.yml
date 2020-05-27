@@ -33,7 +33,7 @@
   args:
     creates: /etc/apache2/ports.conf.orig
 
-- name: Modify Apache to switch listening from port 80 to {{ ckan_apache_virtualhost_port }}
+- name: "Modify Apache to switch listening from port 80 to {{ ckan_apache_virtualhost_port }}"
   lineinfile:
     dest: "/etc/apache2/ports.conf"
     regexp: '^Listen 80'
@@ -120,7 +120,7 @@
     mode: 0755
     state: directory
 
-- name: "Copy CKAN production.ini config file from template (only if `{{ ckan_conf_dir }}/production.ini` does not exist)"
+- name: "Copy CKAN `production.ini` config file from template (only if `{{ ckan_conf_dir }}/production.ini` does not exist)"
   template:
     src: ../templates/production.ini.j2
     dest: "{{ ckan_conf_dir }}/production.ini"
@@ -133,7 +133,7 @@
   command: "{{ ckan_virtualenv }}/bin/python -c 'from paste.script.util import secret; print secret.secret_string()'"
   register: beaker_secret_token
 
-- name: Set beaker.session.secret in production.ini
+- name: Set `beaker.session.secret` in `production.ini`
   lineinfile:
     dest: "{{ ckan_conf_dir }}/production.ini"
     regexp: '^####beaker\.session\.secret'
@@ -153,7 +153,7 @@
     state: present
   when: app_instance_uuid is defined
 
-- name: Create symlink from who.ini to CKAN config directory
+- name: Create symlink from `who.ini` to CKAN config directory
   file:
     src: "{{ ckan_virtualenv }}/src/ckan/who.ini"
     dest: "{{ ckan_conf_dir }}/who.ini"
