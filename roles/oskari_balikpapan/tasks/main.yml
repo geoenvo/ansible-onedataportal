@@ -1,0 +1,126 @@
+---
+- name: "Clone Oskari Balikpapan frontend application repo from `https://github.com/geoenvo/oskari-application-bpn/` to `{{ install_dir_oskari }}/oskari-server/oskari-application-bpn`"
+  git:
+    repo: https://github.com/geoenvo/oskari-application-bpn.git
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn"
+    clone: yes
+    update: yes
+
+- name: "Ensure `{{ install_dir_oskari }}/oskari-server/oskari-application-bpn` exists"
+  file:
+    path: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn"
+    state: directory
+
+- name: "Run `sudo npm install` in `{{ install_dir_oskari }}/oskari-server/oskari-application-bpn`"
+  shell: |
+    cd {{ install_dir_oskari }}/oskari-server/oskari-application-bpn
+    sudo npm install
+    exit
+
+- name: "Run `sudo npm run build` in `{{ install_dir_oskari }}/oskari-server/oskari-application-bpn`"
+  shell: |
+    cd {{ install_dir_oskari }}/oskari-server/oskari-application-bpn
+    sudo npm run build
+    exit
+
+- name: "Ensure `{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}` exists"
+  file:
+    path: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}"
+    state: directory
+
+- name: Backup `oskari-front.xml` file if backup file `oskari-front.xml.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/webapps/oskari-front.xml {{ install_dir_oskari }}/oskari-server/webapps/oskari-front.xml.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/webapps/oskari-front.xml.orig"
+
+- name: Copy `oskari-front.xml` settings file for Oskari from template
+  template:
+    src: ../templates/oskari-front.xml.j2
+    dest: "{{ install_dir_oskari }}/oskari-server/webapps/oskari-front.xml"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Backup `oskari_lang_id.js` file in `geoportal` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `geoportal-3d` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `embedded` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js.orig"
+
+- name: Backup `oskari_lang_id.js` file in `embedded-3d` if backup file `oskari_lang_id.js.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js {{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js.orig"
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `geoportal`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `geoportal`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `geoportal-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `geoportal-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/geoportal-3d/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `embedded`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `embedded`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_id.js` file for Oskari from template for `embedded-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_id.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_id.js"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy `oskari_lang_in.js` file for Oskari from template for `embedded-3d`
+  copy:
+    src: ../../oskari/templates/oskari_lang_in.js
+    dest: "{{ install_dir_oskari }}/oskari-server/oskari-application-bpn/dist/{{ oskari_client_version }}/embedded-3d/oskari_lang_in.js"
+    owner: root
+    group: root
+    mode: 0644

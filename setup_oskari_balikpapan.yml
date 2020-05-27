@@ -1,0 +1,10 @@
+---
+- name: "Setup Balikpapan municipality version of Oskari {{ oskari_version }}"
+  hosts: all
+  become: true
+
+  vars_files:
+    - vars_oskari.yml
+
+  roles:
+    - oskari_balikpapan
