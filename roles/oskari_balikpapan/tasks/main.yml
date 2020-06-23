@@ -124,3 +124,96 @@
     owner: root
     group: root
     mode: 0644
+
+- name: Backup `oskari-map.war` file if backup file `oskari-map.war.orig` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/webapps/oskari-map.war {{ install_dir_oskari }}/oskari-server/webapps/oskari-map.war.orig"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/webapps/oskari-map.war.orig"
+
+- name: "Clone sample server extension repo from `https://github.com/oskariorg/sample-server-extension/` to `{{ install_dir_oskari }}/oskari-server/sample-server-extension`"
+  git:
+    repo: https://github.com/oskariorg/sample-server-extension.git
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-server-extension"
+    version: "tags/1.2.1"
+    clone: yes
+    update: yes
+
+- name: "Ensure `{{ install_dir_oskari }}/oskari-server/sample-server-extension` exists"
+  file:
+    path: "{{ install_dir_oskari }}/oskari-server/sample-server-extension"
+    state: directory
+
+- name: Copy `pom.xml` from template to fix unavaiable `repo.boundlessgeo.com` error when building sample-server-extension
+  template:
+    src: ../templates/pom.xml.j2
+    dest: "{{ install_dir_oskari }}/oskari-server/sample-server-extension/pom.xml"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: "Run `mvn clean install` in `{{ install_dir_oskari }}/oskari-server/sample-server-extension` to build custom `oskari-map.war`"
+  shell: |
+    cd {{ install_dir_oskari }}/oskari-server/sample-server-extension
+    mvn clean install
+    exit
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/sample-server-extension/webapp-map/target/oskari-map.war"
+
+- name: "Copy custom `oskari-map.war` build to `{{ install_dir_oskari }}/oskari-server/webapps/` (overwrite existing file)"
+  shell: "cp {{ install_dir_oskari }}/oskari-server/sample-server-extension/webapp-map/target/oskari-map.war {{ install_dir_oskari }}/oskari-server/webapps/oskari-map.war"
+
+# - name: "Clone Oskari Balikpapan server extension repo from `https://github.com/geoenvo/oskari-server-extension-bpn/tree/wb-idp` to `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn`"
+  # git:
+    # repo: https://github.com/geoenvo/oskari-server-extension-bpn.git
+    # dest: "{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn"
+    # version: wb-idp
+    # clone: yes
+    # update: yes
+
+# - name: "Ensure `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn` exists"
+  # file:
+    # path: "{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn"
+    # state: directory
+
+# - name: "Run `mvn clean install` in `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn` to build custom `oskari-map.war`"
+  # shell: |
+    # cd {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn
+    # mvn clean install
+    # exit
+  # args:
+    # creates: "{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/webapp-map/target/oskari-map.war"
+
+# - name: "Copy custom `oskari-map.war` build to `{{ install_dir_oskari }}/oskari-server/webapps/` (overwrite existing file)"
+  # shell: "cp {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/webapp-map/target/oskari-map.war {{ install_dir_oskari }}/oskari-server/webapps/oskari-map.war"
+
+- name: "Create new Oskari PostgreSQL database `{{ oskari_city_db }}`"
+  become: true
+  become_user: postgres
+  postgresql_db:
+    name: "{{ oskari_city_db }}"
+    encoding: UTF-8
+    template: template0
+    owner: "{{ oskari_db.username }}"
+
+- name: Enable PostGIS extension on new Oskari database
+  become: true
+  become_user: postgres
+  become_method: sudo
+  shell: |
+    psql -d {{ oskari_city_db }} -c "CREATE EXTENSION postgis; CREATE EXTENSION postgis_topology;"
+    psql -d {{ oskari_city_db }} -c "ALTER VIEW geometry_columns OWNER TO {{ oskari_db.username }};"
+    psql -d {{ oskari_city_db }} -c "ALTER TABLE spatial_ref_sys OWNER TO {{ oskari_db.username }};"
+    psql -d {{ oskari_city_db }} -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO {{ oskari_db.username }};"
+    exit
+
+- name: Backup `oskari-ext.properties` Oskari settings file if backup file `oskari-ext.properties.bak` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties {{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties.bak"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties.bak"
+
+- name: "Update Oskari settings to switch from `{{ oskari_db.name }}` to new database `{{ oskari_city_db }}`"
+  lineinfile:
+    dest: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
+    regexp: "^db.url=jdbc:postgresql://localhost:5432/{{ oskari_db.name }}$"
+    line: "db.url=jdbc:postgresql://localhost:5432/{{ oskari_city_db }}"
+    state: present
