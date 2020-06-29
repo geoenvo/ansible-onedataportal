@@ -87,6 +87,13 @@
     virtualenv: "{{ ckan_virtualenv }}"
     state: present
 
+- name: "Install ckanapi Python package from `https://pypi.org/project/ckanapi/4.3/`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: ckanapi==4.3
+    virtualenv: "{{ ckan_virtualenv }}"
+
 - name: "Create CKAN PostgreSQL user `{{ ckan_db.username }}` ({{ ckan_db.role_attr_flags }})"
   become: true
   become_user: postgres
@@ -263,7 +270,7 @@
     state: directory
     recurse: yes
     owner: www-data
-    mode: 0744
+    mode: 0755
 
 - name: Enable CKAN Apache virtualhost site
   shell: "/usr/sbin/a2ensite {{ ckan_site_name }}"

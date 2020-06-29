@@ -56,7 +56,7 @@ SSH to the target server and perform the following steps:
     ```
     server_timezone: set this to the server's timezone (default is Asia/Jakarta)
     ```
-  * ```nano 1_install_postgresql.yml```
+  * ```nano vars_postgresql.yml```
     ```
     postgres_user_password: the password for the default postgres role
     ```
