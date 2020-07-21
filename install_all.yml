@@ -5,3 +5,4 @@
 - import_playbook: 3_install_ckan.yml
 - import_playbook: 4_install_ckan_extras.yml
 - import_playbook: 5_install_oskari.yml
+- import_playbook: 6_install_oskari_development.yml
