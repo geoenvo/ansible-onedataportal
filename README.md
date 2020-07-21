@@ -52,7 +52,7 @@ SSH to the target server and perform the following steps:
   cd ansible-onedataportal
   ```
 * Configure the mandatory playbook variables
-  * ```nano 0_provision_server.yml```
+  * ```nano vars_provision_server.yml```
     ```
     server_timezone: set this to the server's timezone (default is Asia/Jakarta)
     ```
