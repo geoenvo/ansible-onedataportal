@@ -204,7 +204,7 @@
 - name: Copy `setenv.sh` script for Tomcat from template
   template:
     src: ../templates/setenv.sh.j2
-    dest: /usr/share/tomcat8/bin
+    dest: /usr/share/tomcat8/bin/setenv.sh
     owner: root
     group: root
     mode: 0755

@@ -70,6 +70,13 @@
 - name: Upgrade python-pip
   command: pip install --upgrade pip
 
+- name: "Install required setuptools version 36.1"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: setuptools==36.1
+    virtualenv: "{{ ckan_virtualenv }}"
+
 - name: "Install CKAN from `{{ ckan_src_url }}`"
   become: true
   become_user: "{{ ckan_user.name }}"

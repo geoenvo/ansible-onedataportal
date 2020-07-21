@@ -144,7 +144,7 @@
   with_items:
    - redis-server
 
-- name: "Install ckanext-harvest extension from `{{ ckanext_harvest_src_url }}`"
+- name: "Install ckanext-harvest extension version {{ ckanext_harvest_version }} from `{{ ckanext_harvest_src_url }}`"
   become: true
   become_user: "{{ ckan_user.name }}"
   pip:
@@ -191,6 +191,14 @@
   stat:
     path: "{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized"
   register: ckanext_harvest_tables_initialized
+
+- name: "[TEMPORARY] Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by CKAN process"
+  file:
+    path: "{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n"
+    state: directory
+    recurse: yes
+    owner: "{{ ckan_user.name }}"
+    mode: 0755
 
 - name: "Initialize ckanext-harvest database tables (only if `{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized` file does not exist)"
   shell: |
@@ -258,7 +266,7 @@
   changed_when: false
   register: geoview_views_enabled
 
-- name: Enable geo_view, geojson_view, wmts_view, shp_view views in production.ini
+- name: Enable geo_view, geojson_view, wmts_view, shp_view default views in production.ini
   lineinfile:
     dest: "{{ ckan_conf_dir }}/production.ini"
     regexp: '^(ckan\.views\.default_views(.*)$)'
@@ -277,7 +285,7 @@
     mode: 0644
     force: no
 
-# Setup CKAN DataPusher service (version 0.0.15 as of 202003)
+# Setup CKAN DataPusher service (version 0.0.16 as of 202004)
 # https://docs.ckan.org/projects/datapusher/en/latest/deployment.html
 # https://github.com/ckan/datapusher
 - name: "Check if DataPusher installed flag file `{{ ckan_conf_dir }}/.ckan_datapusher_installed` exists"
@@ -443,3 +451,11 @@
     state: present
     special_time: reboot
     job: "{{ ckan_virtualenv }}/bin/python {{ ckan_virtualenv }}/src/pycsw/pycsw/wsgi.py >> /var/log/pycsw.log 2>&1"
+
+- name: "Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by Apache process"
+  file:
+    path: "{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n"
+    state: directory
+    recurse: yes
+    owner: www-data
+    mode: 0755

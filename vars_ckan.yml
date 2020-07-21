@@ -53,12 +53,14 @@ ckan_db: {
   host: "localhost"
 }
 # Variables for CKAN extra below
-ckanext_spatial_src_url: git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-spatial
-ckanext_harvest_src_url: git+https://github.com/ckan/ckanext-harvest.git#egg=ckanext-harvest
-ckan_datapusher_version: 0.0.15
+ckanext_spatial_version: "4ac25f19aa4eb9c798451f5eeb3084f907ccc003"
+ckanext_spatial_src_url: "git+https://github.com/ckan/ckanext-spatial.git@{{ ckanext_spatial_version }}#egg=ckanext-spatial"
+ckanext_harvest_version: "v1.3.0"
+ckanext_harvest_src_url: "git+https://github.com/ckan/ckanext-harvest.git{{ ckanext_harvest_version }}#egg=ckanext-harvest"
+ckan_datapusher_version: 0.0.16
 ckan_datapusher_src_url: "git+https://github.com/ckan/datapusher.git@{{ ckan_datapusher_version }}#egg=datapusher"
 ckan_datapusher_virtualenv: "{{ ckan_user.home_path }}/datapusher"
-fix_datapusher_0_0_15_package_conflict: true
+fix_datapusher_0_0_15_package_conflict: false
 ckanext_geoview_version: 0.0.16
 pycsw_version: 2.4.2
 pycsw_src_url: "git+https://github.com/geopython/pycsw.git@{{ pycsw_version }}#egg=pycsw"

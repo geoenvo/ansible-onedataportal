@@ -28,8 +28,6 @@
       line: "TCPKeepAlive no"
     - regexp: "^#?UseDNS"
       line: "UseDNS no"
-    - regexp: "^#?AllowAgentForwarding"
-      line: "AllowAgentForwarding no"
 
 - name: Restart sshd
   systemd:
