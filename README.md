@@ -94,7 +94,7 @@ SSH to the target server and perform the following steps:
         ```
         ansible-playbook -K -i inventory 1_install_postgresql.yml
           BECOME password: enter the user's sudo password
-        ansible-playbook -K -i inventory 6_setup_oskari_development.yml
+        ansible-playbook -K -i inventory 6_install_oskari_development.yml
         ```
 * Some manual configuration might be needed to achieve the following (this is optional):
   * Configure firewall to further secure the server
