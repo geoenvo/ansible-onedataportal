@@ -83,7 +83,7 @@ SSH to the target server and perform the following steps:
         ansible-playbook -K -i inventory 5_install_oskari.yml
         ```
     * Or run the install all playbook to install everything in order
-      * This will run the playbooks above in correct order from 1 to 5
+      * This will run the playbooks above in correct order from 0 to 6
         ```
         ansible-playbook -K -i inventory install_all.yml
           BECOME password: enter the user's sudo password
