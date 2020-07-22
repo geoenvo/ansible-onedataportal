@@ -1,6 +1,6 @@
 ---
-- name: Run `6_setup_oskari_development.yml` playbook requirement
-  import_playbook: 6_setup_oskari_development.yml
+- name: Run `6_install_oskari_development.yml` playbook requirement
+  import_playbook: 6_install_oskari_development.yml
 
 - name: "Setup Denpasar municipality version of Oskari {{ oskari_version }}"
   hosts: all
