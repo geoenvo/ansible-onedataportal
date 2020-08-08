@@ -264,6 +264,7 @@
   blockinfile:
     path: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
     block: |
+      
       ##################################
       # CKAN-Oskari Integration Setup
       ##################################
