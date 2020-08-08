@@ -169,7 +169,7 @@
     dest: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
     regexp: '^oskari\.client\.version(.*)$'
     backrefs: yes
-    line: "#oskari.client.version\1"
+    line: '#oskari.client.version\1'
     state: present
 
 - name: "Change client version from `{{ oskari_client_version }}` to `{{ oskari_new_client_version }}` in Oskari settings"
@@ -213,7 +213,7 @@
     dest: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
     regexp: '^db\.additional\.modules(.*)$'
     backrefs: yes
-    line: "#db.additional.modules\1"
+    line: '#db.additional.modules\1'
     state: present
 
 - name: "Enable `{{ oskari_custom_module }}` in `db.additional.modules` in Oskari settings"
@@ -228,7 +228,7 @@
     dest: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
     regexp: '^actionhandler\.GetAppSetup\.dynamic\.bundles(.*)$'
     backrefs: yes
-    line: "#actionhandler.GetAppSetup.dynamic.bundles\1"
+    line: '#actionhandler.GetAppSetup.dynamic.bundles\1'
     state: present
 
 - name: "Enable `content-editor` bundle in `actionhandler.GetAppSetup.dynamic.bundles` in Oskari settings"
@@ -250,7 +250,7 @@
     dest: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
     regexp: '^oskari\.user\.service(.*)$'
     backrefs: yes
-    line: "#oskari.user.service\1"
+    line: '#oskari.user.service\1'
     state: present
 
 - name: "Enable custom user service `wbidp.oskari.util.DatabaseUserServiceCKAN` bundle in `oskari.user.service` in Oskari settings"
