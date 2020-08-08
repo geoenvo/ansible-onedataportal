@@ -3,7 +3,7 @@
   git:
     repo: https://github.com/oskariorg/oskari-frontend.git
     dest: "{{ install_dir_oskari }}/oskari-server/oskari-frontend"
-    version: "tags/1.55.2"
+    version: "tags/{{ oskari_version }}"
     clone: yes
     update: yes
 
@@ -11,7 +11,7 @@
   git:
     repo: https://github.com/oskariorg/oskari-frontend-contrib.git
     dest: "{{ install_dir_oskari }}/oskari-server/oskari-frontend-contrib"
-    version: "tags/1.55.2"
+    version: "tags/{{ oskari_version }}"
     clone: yes
     update: yes
 
