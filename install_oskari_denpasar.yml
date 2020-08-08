@@ -7,6 +7,7 @@
   become: true
 
   vars_files:
+    - vars_ckan.yml
     - vars_oskari.yml
     - vars_oskari_denpasar.yml
 
