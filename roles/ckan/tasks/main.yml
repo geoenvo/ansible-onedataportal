@@ -94,11 +94,11 @@
     virtualenv: "{{ ckan_virtualenv }}"
     state: present
 
-- name: "Install ckanapi Python package from `https://pypi.org/project/ckanapi/4.3/`"
+- name: "Install ckanapi Python package version `{{ ckan_ckanapi_version }}` from `https://pypi.org/project/ckanapi/`"
   become: true
   become_user: "{{ ckan_user.name }}"
   pip:
-    name: ckanapi==4.3
+    name: "ckanapi=={{ ckan_ckanapi_version }}"
     virtualenv: "{{ ckan_virtualenv }}"
 
 - name: "Create CKAN PostgreSQL user `{{ ckan_db.username }}` ({{ ckan_db.role_attr_flags }})"

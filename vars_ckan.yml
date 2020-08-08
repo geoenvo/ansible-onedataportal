@@ -77,3 +77,7 @@ pycsw_db: {
   name: "pycsw",
   host: "localhost"
 }
+ckan_ckanapi_version: 4.3
+ckan_ckanapi_organizations_dump_file: "/tmp/ckanorgsdump.jsonl"
+ckan_ckanapi_users_dump_file: "/tmp/ckanusersdump.jsonl"
+ckan_ckanapi_datasets_dump_file: "/tmp/ckandatasetsdump.jsonl"
