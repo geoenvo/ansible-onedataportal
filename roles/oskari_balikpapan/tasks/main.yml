@@ -311,12 +311,12 @@ name: "Enable custom user service `wbidp.oskari.util.DatabaseUserServiceCKAN` bu
     mode: 0755
     state: directory
 
-- name: "Enable `download-basket` bundle in Oskari database"
+- name: "Run SQL script to enable `download-basket` bundle in Oskari database"
   become: true
   become_user: postgres
   become_method: sudo
   shell: |
-    psql -d {{ oskari_db.name }} -c "INSERT INTO portti_bundle (name, config, state, startup) VALUES ('download-basket','{}','{}', NULL);"
+    psql -d {{ oskari_db.name }} -f {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/server-extension/src/main/resources/sql/001-download-basket.sql
     exit
 
 - name: "Install hourly cron job for dumping CKAN Users"
