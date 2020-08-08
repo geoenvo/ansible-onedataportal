@@ -3,4 +3,8 @@
 # Oskari Balikpapan variables
 #
 
-oskari_city_db: oskaribpndb
+oskari_new_client_version: wbidp
+oskari_custom_module: wbidp
+oskari_synchronizeuserdatajob_cronline: "0 * * * * ?"
+oskari_synchronizelayerdatajob_cronline: "0 * * * * ?"
+oskari_wfs_service_url: "http://geo.stat.fi/geoserver/wfs"
