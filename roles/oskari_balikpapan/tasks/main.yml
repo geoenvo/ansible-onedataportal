@@ -164,6 +164,19 @@
     group: root
     mode: 0644
 
+- name: Backup `userguide.html` file if backup file `userguide.html.bak` does not exist
+  shell: "cp {{ install_dir_oskari }}/oskari-server/resources/articlesByTag/userguide.html {{ install_dir_oskari }}/oskari-server/resources/articlesByTag/userguide.html.bak"
+  args:
+    creates: "{{ install_dir_oskari }}/oskari-server/resources/articlesByTag/userguide.html.bak"
+
+- name: Copy Balikpapan `userguide.html` file for Oskari from template
+  copy:
+    src: ../templates/userguide.html
+    dest: "{{ install_dir_oskari }}/oskari-server/resources/articlesByTag/userguide.html"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: "Comment old `{{ oskari_client_version }}` client version in Oskari settings"
   lineinfile:
     dest: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
