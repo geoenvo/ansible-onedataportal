@@ -452,6 +452,106 @@
     special_time: reboot
     job: "{{ ckan_virtualenv }}/bin/python {{ ckan_virtualenv }}/src/pycsw/pycsw/wsgi.py >> /var/log/pycsw.log 2>&1"
 
+# Setup ckanext-agsview extension
+# https://github.com/OpenGov-OpenData/ckanext-agsview
+- name: "Install ckanext-agsview extension from `{{ ckanext_agsview_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_agsview_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Add extra ckanext-agsview settings to `{{ ckan_conf_dir }}/production.ini`"
+  blockinfile:
+    path: "{{ ckan_conf_dir }}/production.ini"
+    block: |
+      #### Extra ckanext-agsview settings
+      # set default esri basemap http://esri.github.io/esri-leaflet/api-reference/layers/basemap-layer.html
+      ckanext.ags_view_default_basemap_url = Gray
+      ckanext.ags_view_proxy = '{}'
+  notify: reload apache2
+
+- name: Check if ags_fs_view, ags_ms_view plugins are already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*ags_fs_view ags_ms_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: agsview_plugins_enabled
+
+- name: Enable ags_fs_view, ags_ms_view plugins in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 ags_fs_view ags_ms_view'
+    state: present
+  when: not agsview_plugins_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-pdfview extension
+# https://github.com/ckan/ckanext-pdfview
+- name: "Install ckanext-pdfview extension from `{{ ckanext_pdfview_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_pdfview_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Check if pdf_view plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*pdf_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: pdfview_plugin_enabled
+
+- name: Enable pdf_view plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 pdf_view'
+    state: present
+  when: not pdfview_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-pages extension
+# https://github.com/ckan/ckanext-pages
+- name: "Install ckanext-pages extension from `{{ ckanext_pages_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_pages_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Check if pages plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*pages.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: pages_plugin_enabled
+
+- name: Enable pages plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 pages'
+    state: present
+  when: not pages_plugin_enabled.found
+  notify: reload apache2
+
 - name: "Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by Apache process"
   file:
     path: "{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n"
