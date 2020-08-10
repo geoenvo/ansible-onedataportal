@@ -333,23 +333,23 @@
     psql -d {{ oskari_db.name }} -f {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/server-extension/src/main/resources/sql/001-download-basket.sql
     exit
 
-- name: "Install hourly cron job for dumping CKAN Users"
+- name: "Install 10 minute interval cron job for dumping CKAN Users"
   cron:
     name: "ckanapi dump users"
     state: present
-    special_time: hourly
+    minute: "*/10"
     job: "PATH={{ ckan_virtualenv }}/bin:/bin && {{ ckan_virtualenv }}/bin/python {{ ckan_virtualenv }}/bin/ckanapi dump users --all -O {{ ckan_ckanapi_users_dump_file }} -c {{ ckan_conf_dir }}/production.ini && chmod 400 {{ ckan_ckanapi_users_dump_file }}"
 
-- name: "Install hourly cron job for dumping CKAN Organizations"
+- name: "Install 10 minute interval cron job for dumping CKAN Organizations"
   cron:
     name: "ckanapi dump organizations"
     state: present
-    special_time: hourly
+    minute: "*/10"
     job: "PATH={{ ckan_virtualenv }}/bin:/bin && {{ ckan_virtualenv }}/bin/python {{ ckan_virtualenv }}/bin/ckanapi dump organizations --all -O {{ ckan_ckanapi_organizations_dump_file }} -c {{ ckan_conf_dir }}/production.ini && chmod 400 {{ ckan_ckanapi_organizations_dump_file }}"
 
-- name: "Install hourly cron job for dumping CKAN Datasets"
+- name: "Install 10 minute interval cron job for dumping CKAN Datasets"
   cron:
     name: "ckanapi dump datasets"
     state: present
-    special_time: hourly
+    minute: "*/10"
     job: "PATH={{ ckan_virtualenv }}/bin:/bin && {{ ckan_virtualenv }}/bin/python {{ ckan_virtualenv }}/bin/ckanapi dump datasets --all -O {{ ckan_ckanapi_datasets_dump_file }} -c {{ ckan_conf_dir }}/production.ini && chmod 400 {{ ckan_ckanapi_datasets_dump_file }}"
