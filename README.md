@@ -47,7 +47,10 @@
 SSH to the target server and perform the following steps:
 * Clone this repo (install `git` package if necessary)
   ```
-  cd ~
+  # clone the ansible playbook repo to /opt
+  cd /opt
+  # become root user
+  sudo su
   git clone https://github.com/geoenvo/ansible-onedataportal.git
   cd ansible-onedataportal
   ```
@@ -65,6 +68,8 @@ SSH to the target server and perform the following steps:
     ckan_site_url: set this to the IP address or domain name of the server where CKAN will be accessed (default is http://192.168.1.200)
     ckan_admin.username: set the username for the CKAN admin user (default is admin)
     ckan_admin.password: set the default password for the CKAN admin user
+    (Optional) ckan_max_resource_size: change the default resource file size upload limit
+    (Optional) ckan_max_image_size: change the default image file size upload limit
     ```
   * ```nano vars_oskari.yml```
     ```
@@ -74,6 +79,9 @@ SSH to the target server and perform the following steps:
     * One by one
       * Must be run in the order of the filename
         ```
+        cd /opt/ansible-onedataportal
+        # become root user
+        sudo su
         ansible-playbook -K -i inventory 0_provision_server.yml
           BECOME password: enter the user's sudo password
         ansible-playbook -K -i inventory 1_install_postgresql.yml
@@ -85,6 +93,9 @@ SSH to the target server and perform the following steps:
     * Or run the install all playbook to install everything in order
       * This will run the playbooks above in correct order from 0 to 6
         ```
+        cd /opt/ansible-onedataportal
+        # become root user
+        sudo su
         ansible-playbook -K -i inventory install_all.yml
           BECOME password: enter the user's sudo password
         ```
@@ -92,6 +103,9 @@ SSH to the target server and perform the following steps:
       * Refer to https://oskari.org/documentation/backend/setup-development
       * PostgreSQL and PostGIS must be installed first if they haven't been installed above
         ```
+        cd /opt/ansible-onedataportal
+        # become root user
+        sudo su
         ansible-playbook -K -i inventory 1_install_postgresql.yml
           BECOME password: enter the user's sudo password
         ansible-playbook -K -i inventory 6_install_oskari_development.yml
