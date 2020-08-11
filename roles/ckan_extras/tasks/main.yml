@@ -223,7 +223,9 @@
 - name: "Add extra spatial settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
     path: "{{ ckan_conf_dir }}/production.ini"
+    insertafter: '## Extra settings'
     block: |
+      
       #### Extra spatial related settings
       ckan.spatial.srid = 4326
       ckanext.spatial.search_backend = solr
@@ -466,7 +468,9 @@
 - name: "Add extra ckanext-agsview settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
     path: "{{ ckan_conf_dir }}/production.ini"
+    insertafter: '## Extra settings'
     block: |
+      
       #### Extra ckanext-agsview settings
       # set default esri basemap http://esri.github.io/esri-leaflet/api-reference/layers/basemap-layer.html
       ckanext.ags_view_default_basemap_url = Gray
