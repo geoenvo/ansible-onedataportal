@@ -315,9 +315,26 @@
     state: started
     enabled: yes
 
-- name: "Install cron job to run Oskari on @reboot"
-  cron:
-    name: "start oskari"
-    state: present
-    special_time: reboot
-    job: "cd {{ install_dir_oskari }}/oskari-server && java -jar ../jetty-distribution-9.4.12.v20180830/start.jar >> /var/log/oskari_server.log 2>&1"
+# - name: "Install cron job to run Oskari on @reboot"
+  # cron:
+    # name: "start oskari"
+    # state: present
+    # special_time: reboot
+    # job: "cd {{ install_dir_oskari }}/oskari-server && java -jar ../jetty-distribution-9.4.12.v20180830/start.jar >> /var/log/oskari_server.log 2>&1"
+
+- name: "Copy `jetty.service` systemd unit file for Oskari from template"
+  template:
+    src: ../templates/jetty.service.j2
+    dest: /etc/systemd/system/jetty.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: enable Jetty service for Oskari to start on boot
+  systemd:
+    name: jetty
+    enabled: yes
