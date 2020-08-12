@@ -223,7 +223,7 @@
 - name: "Add extra spatial settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
     path: "{{ ckan_conf_dir }}/production.ini"
-    insertafter: '## Extra settings'
+    insertafter: '## Extra spatial settings'
     block: |
       
       #### Extra spatial related settings
@@ -468,7 +468,7 @@
 - name: "Add extra ckanext-agsview settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
     path: "{{ ckan_conf_dir }}/production.ini"
-    insertafter: '## Extra settings'
+    insertafter: '## Extra ckanext-agsview settings'
     block: |
       
       #### Extra ckanext-agsview settings
