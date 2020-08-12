@@ -223,6 +223,7 @@
 - name: "Add extra spatial settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
     path: "{{ ckan_conf_dir }}/production.ini"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK Extra spatial settings"
     insertafter: '## Extra spatial settings'
     block: |
       
@@ -468,6 +469,7 @@
 - name: "Add extra ckanext-agsview settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
     path: "{{ ckan_conf_dir }}/production.ini"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-agsview settings"
     insertafter: '## Extra ckanext-agsview settings'
     block: |
       
