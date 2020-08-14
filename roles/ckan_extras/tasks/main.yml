@@ -227,7 +227,7 @@
     insertafter: '## Extra spatial settings'
     block: |
       
-      #### Extra spatial related settings
+      #### Extra spatial settings
       ckan.spatial.srid = 4326
       ckanext.spatial.search_backend = solr
       ckan.resource_proxy.max_file_size = 26214400 # 25 MB * 1024 * 1024
@@ -556,6 +556,148 @@
     line: '\1 pages'
     state: present
   when: not pages_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-onedataportal extension
+# https://github.com/geoenvo/ckanext-onedataportal
+- name: "Install ckanext-onedataportal extension from `{{ ckanext_onedataportal_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_onedataportal_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Add extra ckanext-onedataportal settings to `{{ ckan_conf_dir }}/production.ini`"
+  blockinfile:
+    path: "{{ ckan_conf_dir }}/production.ini"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-onedataportal settings"
+    insertafter: '## Extra ckanext-onedataportal settings'
+    block: |
+      
+      #### Extra ckanext-onedataportal settings
+      ckan.onedataportal.geoportal_url = {{ ckan_onedataportal_geoportal_url }}
+      ckan.onedataportal.geoportal_name = {{ ckan_onedataportal_geoportal_name }}
+  notify: reload apache2
+
+- name: Check if onedataportal plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*onedataportal.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: onedataportal_plugin_enabled
+
+- name: Enable onedataportal plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 onedataportal'
+    state: present
+  when: not onedataportal_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-issues extension
+# https://github.com/OpenGov-OpenData/ckanext-issues.git
+- name: "Install ckanext-issues extension from `{{ ckanext_issues_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_issues_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Add extra ckanext-issues settings to `{{ ckan_conf_dir }}/production.ini`"
+  blockinfile:
+    path: "{{ ckan_conf_dir }}/production.ini"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-issues settings"
+    insertafter: '## Extra ckanext-issues settings'
+    block: |
+      
+      #### Extra ckanext-issues settings
+      ckanext.issues.send_email_notifications = {{ ckan_issues_send_email_notifications }}
+  notify: reload apache2
+
+- name: Check if issues plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*issues.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: issues_plugin_enabled
+
+- name: Enable issues plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 issues'
+    state: present
+  when: not issues_plugin_enabled.found
+  notify: reload apache2
+
+- name: "Check if ckanext-issues database tables initialized flag file `{{ ckan_conf_dir }}/.ckanext_issues_tables_initialized` exists"
+  stat:
+    path: "{{ ckan_conf_dir }}/.ckanext_issues_tables_initialized"
+  register: ckanext_issues_tables_initialized
+
+- name: "Initialize ckanext-issues database tables (only if `{{ ckan_conf_dir }}/.ckanext_issues_tables_initialized` file does not exist)"
+  shell: |
+    {{ ckan_virtualenv }}/bin/paster --plugin=ckanext-issues issues init_db -c {{ ckan_conf_dir }}/production.ini
+    exit
+  when: ckanext_issues_tables_initialized.stat.exists == false
+
+- name: "Create ckanext-issues database tables initialized flag file `{{ ckan_conf_dir }}/.ckanext_issues_tables_initialized`"
+  copy:
+    content: "ckanext-issues database tables initialized\n"
+    dest: "{{ ckan_conf_dir }}/.ckanext_issues_tables_initialized"
+  when: ckanext_issues_tables_initialized.stat.exists == false
+  notify: reload apache2
+
+# Setup ckanext-privatedatasets extension
+# https://github.com/geoenvo/ckanext-privatedatasets.git
+- name: "Install ckanext-privatedatasets extension from `{{ ckanext_privatedatasets_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_privatedatasets_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Add extra ckanext-privatedatasets settings to `{{ ckan_conf_dir }}/production.ini`"
+  blockinfile:
+    path: "{{ ckan_conf_dir }}/production.ini"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-privatedatasets settings"
+    insertafter: '## Extra ckanext-privatedatasets settings'
+    block: |
+      
+      #### Extra ckanext-privatedatasets settings
+      ckan.privatedatasets.parser = ckanext.privatedatasets.parsers.fiware:FiWareNotificationParser
+  notify: reload apache2
+
+- name: Check if privatedatasets plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*privatedatasets.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: privatedatasets_plugin_enabled
+
+- name: Enable privatedatasets plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 privatedatasets'
+    state: present
+  when: not privatedatasets_plugin_enabled.found
   notify: reload apache2
 
 - name: "Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by Apache process"

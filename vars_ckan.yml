@@ -87,3 +87,10 @@ ckanext_pdfview_version: "6669a93b249413aba6653634849ed5a2eb7cca7a"
 ckanext_pdfview_src_url: "git+https://github.com/ckan/ckanext-pdfview.git@{{ ckanext_pdfview_version }}#egg=ckanext-pdfview"
 ckanext_pages_version: "da7f35d0712a7d032221f65081ef937ca8c02af9"
 ckanext_pages_src_url: "git+https://github.com/ckan/ckanext-pages.git@{{ ckanext_pages_version }}#egg=ckanext-pages"
+ckanext_onedataportal_src_url: "git+https://github.com/geoenvo/ckanext-onedataportal.git#egg=ckanext-onedataportal"
+ckan_onedataportal_geoportal_url: "{{ ckan_site_url }}:8080"
+ckan_onedataportal_geoportal_name: Geoportal
+ckanext_issues_version: "bb9b0b8e339a2752d858f2dfee069b9d507793aa"
+ckan_issues_send_email_notifications: false
+ckanext_issues_src_url: "git+https://github.com/OpenGov-OpenData/ckanext-issues.git@{{ ckanext_issues_version }}#egg=ckanext-issues"
+ckanext_privatedatasets_src_url: "git+https://github.com/geoenvo/ckanext-privatedatasets.git#egg=ckanext-privatedatasets"
