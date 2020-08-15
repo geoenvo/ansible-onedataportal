@@ -6,6 +6,8 @@
 - name: Enable Node `{{ oskari_development_node_version }}.x` LTS repository
   shell: |
     curl -sL https://deb.nodesource.com/setup_{{ oskari_development_node_version|quote }}.x | sudo -E bash -
+  args:
+    warn: false
 
 - name: Install Oskari development prerequisite packages
   package:

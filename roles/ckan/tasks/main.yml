@@ -191,6 +191,7 @@
   copy:
     content: "CKAN database initialized\n"
     dest: "{{ ckan_conf_dir }}/.ckan_database_initialized"
+    mode: 0644
   when: ckan_database_initialized is defined and ckan_database_initialized_stat.stat.exists == false
 
 - name: "Check if CKAN admin user `{{ ckan_admin.username }}` exists"
@@ -219,6 +220,7 @@
   template:
     src: ../templates/apache_virtualhost.conf.j2
     dest: "/etc/apache2/sites-available/{{ ckan_site_name }}.conf"
+    mode: 0644
   notify: reload apache2
 
 - name: "Copy CKAN WSGI config file from template to `{{ ckan_conf_dir }}/apache.wsgi`"
@@ -292,6 +294,7 @@
   template:
     src: ../templates/nginx_virtualhost.j2
     dest: "/etc/nginx/sites-available/{{ ckan_site_name }}"
+    mode: 0644
 
 - name: Enable CKAN NGINX virtualhost site
   file:

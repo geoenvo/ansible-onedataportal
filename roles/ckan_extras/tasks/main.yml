@@ -66,6 +66,7 @@
   copy:
     content: "DataStore database initialized\n"
     dest: "{{ ckan_conf_dir }}/.datastore_database_initialized"
+    mode: 0644
   when: datastore_database_initialized_stat.stat.exists == false
   notify: reload apache2
 
@@ -210,6 +211,7 @@
   copy:
     content: "ckanext-harvest database tables initialized\n"
     dest: "{{ ckan_conf_dir }}/.ckanext_harvest_tables_initialized"
+    mode: 0644
   when: ckanext_harvest_tables_initialized.stat.exists == false
   notify: reload apache2
 
@@ -382,6 +384,7 @@
   copy:
     content: "CKAN DataPusher installed\n"
     dest: "{{ ckan_conf_dir }}/.ckan_datapusher_installed"
+    mode: 0644
   when: ckan_datapusher_installed.stat.exists == false
 
 # Setup pycsw service (version 2.4.2 as of 202003)
@@ -446,6 +449,7 @@
   copy:
     content: "pycsw database tables initialized\n"
     dest: "{{ ckan_conf_dir }}/.pycsw_tables_initialized"
+    mode: 0644
   when: pycsw_tables_initialized.stat.exists == false
 
 - name: "Install cron job to run pycsw service on @reboot"
@@ -656,6 +660,7 @@
   copy:
     content: "ckanext-issues database tables initialized\n"
     dest: "{{ ckan_conf_dir }}/.ckanext_issues_tables_initialized"
+    mode: 0644
   when: ckanext_issues_tables_initialized.stat.exists == false
   notify: reload apache2
 

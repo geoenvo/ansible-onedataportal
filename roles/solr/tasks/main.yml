@@ -19,12 +19,14 @@
     dest: "{{ working_dir }}/{{ solr_archive }}"
     timeout: 300
     force: false
+    mode: 0644
 
 - name: "Extract installation script from {{ solr_archive }}"
   command: "tar xzf {{ solr_archive }} solr-{{ solr_version }}/bin/install_solr_service.sh --strip-components=2"
   args:
     chdir: "{{ working_dir }}"
     creates: "{{ working_dir }}/install_solr_service.sh"
+    warn: false
 
 - name: Run Solr installation script
   command: >

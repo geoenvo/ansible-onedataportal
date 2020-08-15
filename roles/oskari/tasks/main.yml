@@ -27,6 +27,7 @@
     url: "{{ oskari_jetty_bundle_archive_url }}"
     dest: "{{ working_dir }}/{{ oskari_jetty_bundle_archive }}"
     force: false
+    mode: 0644
 
 - name: "Ensure `{{ install_dir_oskari }}` exists"
   file:
@@ -242,6 +243,7 @@
     url: "{{ geoserver_war_archive_url }}"
     dest: "{{ working_dir }}/{{ geoserver_war_archive }}"
     force: false
+    mode: 0644
 
 - name: "Ensure `{{ working_dir }}/geoserver` exists"
   file:
