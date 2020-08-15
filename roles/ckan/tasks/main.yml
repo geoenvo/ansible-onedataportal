@@ -207,14 +207,18 @@
   changed_when: false
   register: check_ckan_admin_username
 
-- name: "Create CKAN admin user `{{ ckan_admin.username }}`"
+- name: "Store `{{ ckan_admin.username }}` in register"
+  command: "echo '{{ ckan_admin.username }}'"
+  register: ckan_admin_username
+
+- name: "Create CKAN admin user `{{ ckan_admin.username }}` if it has not been created"
   become: true
   become_user: "{{ ckan_user.name }}"
   shell: |
     {{ ckan_virtualenv }}/bin/paster --plugin=ckan user add {{ ckan_admin.username }} password="{{ ckan_admin.password }}" email={{ ckan_admin.email }} name={{ ckan_admin.username }} -c {{ ckan_conf_dir }}/production.ini
     {{ ckan_virtualenv }}/bin/paster --plugin=ckan sysadmin add {{ ckan_admin.username }} -c {{ ckan_conf_dir }}/production.ini
     exit
-  when: ckan_create_admin_user and ('"name={{ ckan_admin.username }}" not in check_ckan_admin_username.stdout')
+  when: ckan_create_admin_user and ('"name=ckan_admin_username.stdout" not in check_ckan_admin_username.stdout')
 
 - name: "Copy CKAN Apache virtualhost config file from template to `/etc/apache2/sites-available/{{ ckan_site_name }}.conf`"
   template:
