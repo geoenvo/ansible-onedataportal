@@ -24,10 +24,10 @@ ckan_storage_path: "/var/lib/ckan/{{ ckan_site_name }}"
 ckan_apache_virtualhost_port: 8090
 # Set ckan_debug_mode to true for debugging or false for production
 ckan_debug_mode: false
-# CKAN max resource upload size in MB
-ckan_max_resource_size: 10
-# CKAN max image upload size in MB
-ckan_max_image_size: 2
+# CKAN max resource upload size in MB (CKAN default is 10)
+ckan_max_resource_size: 50
+# CKAN max image upload size in MB (CKAN default is 2)
+ckan_max_image_size: 10
 # CKAN email settings
 ckan_email_to: "admin@yourdomain.com"
 ckan_error_email_from: "no-reply@yourdomain.com"
