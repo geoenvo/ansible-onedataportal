@@ -207,7 +207,7 @@
   changed_when: false
   register: check_ckan_admin_username
 
-- name: "Store `{{ ckan_admin.username }}` in register"
+- name: "Store CKAN admin user `{{ ckan_admin.username }}` in register"
   command: "echo '{{ ckan_admin.username }}'"
   register: ckan_admin_username
 
