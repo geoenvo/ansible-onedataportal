@@ -5,6 +5,6 @@
 
 oskari_new_client_version: wbidp
 oskari_custom_module: wbidp
-oskari_synchronizeuserdatajob_cronline: "*/15 * * * * ?"
-oskari_synchronizelayerdatajob_cronline: "*/15 * * * * ?"
+oskari_synchronizeuserdatajob_cronline: "*/13 * * * * ?"
+oskari_synchronizelayerdatajob_cronline: "*/13 * * * * ?"
 oskari_wfs_service_url: "http://geo.stat.fi/geoserver/wfs"
