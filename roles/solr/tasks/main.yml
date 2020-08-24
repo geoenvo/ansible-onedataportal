@@ -13,13 +13,19 @@
     path: /etc/environment
     line: JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-- name: "Download Solr {{ solr_version }} from {{ solr_archive_url }} to {{ working_dir }}"
+- name: "Check if `{{ solr_archive }}` is already downloaded in `{{ working_dir }}`"
+  stat:
+    path: "{{ working_dir }}/{{ solr_archive }}"
+  register: solr_archive_stat
+
+- name: "Download Solr {{ solr_version }} from {{ solr_archive_url }} to {{ working_dir }} (only if `{{ working_dir }}/{{ solr_archive }}` file does not exist)"
   get_url:
     url: "{{ solr_archive_url }}"
     dest: "{{ working_dir }}/{{ solr_archive }}"
     timeout: 300
     force: false
     mode: 0644
+  when: solr_archive_stat.stat.exists == false
 
 - name: "Extract installation script from {{ solr_archive }}"
   command: "tar xzf {{ solr_archive }} solr-{{ solr_version }}/bin/install_solr_service.sh --strip-components=2"

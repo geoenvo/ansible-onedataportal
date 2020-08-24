@@ -22,12 +22,18 @@
    - unzip
    - redis-server
 
-- name: "Download Oskari from `{{ oskari_jetty_bundle_archive_url }}` to `{{ working_dir }}`"
+- name: "Check if `{{ oskari_jetty_bundle_archive }}` is already downloaded in `{{ working_dir }}`"
+  stat:
+    path: "{{ working_dir }}/{{ oskari_jetty_bundle_archive }}"
+  register: oskari_jetty_bundle_archive_stat
+
+- name: "Download Oskari from `{{ oskari_jetty_bundle_archive_url }}` to `{{ working_dir }}` (only if `{{ working_dir }}/{{ oskari_jetty_bundle_archive }}` file does not exist)"
   get_url:
     url: "{{ oskari_jetty_bundle_archive_url }}"
     dest: "{{ working_dir }}/{{ oskari_jetty_bundle_archive }}"
     force: false
     mode: 0644
+  when: oskari_jetty_bundle_archive_stat.stat.exists == false
 
 - name: "Ensure `{{ install_dir_oskari }}` exists"
   file:
@@ -238,12 +244,18 @@
     psql -d {{ geoserver_db.name }} -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO {{ geoserver_db.username }};"
     exit
 
-- name: "Download GeoServer {{ geoserver_version }} from `{{ geoserver_war_archive_url }}` to `{{ working_dir }}`"
+- name: "Check if `{{ geoserver_war_archive }}` is already downloaded in `{{ working_dir }}`"
+  stat:
+    path: "{{ working_dir }}/{{ geoserver_war_archive }}"
+  register: geoserver_war_archive_stat
+
+- name: "Download GeoServer {{ geoserver_version }} from `{{ geoserver_war_archive_url }}` to `{{ working_dir }}` (only if `{{ working_dir }}/{{ geoserver_war_archive }}` file does not exist)"
   get_url:
     url: "{{ geoserver_war_archive_url }}"
     dest: "{{ working_dir }}/{{ geoserver_war_archive }}"
     force: false
     mode: 0644
+  when: geoserver_war_archive_stat.stat.exists == false
 
 - name: "Ensure `{{ working_dir }}/geoserver` exists"
   file:
