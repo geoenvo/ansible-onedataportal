@@ -169,21 +169,21 @@
     line: ckan.harvest.mq.type = redis
     state: present
 
-- name: Check if harvest and ckan_harvester plugins are already enabled in production.ini
+- name: Check if harvest ckan_harvester csw_harvester waf_harvester doc_harvester plugins are already enabled in production.ini
   lineinfile:
     dest: "{{ ckan_conf_dir }}/production.ini"
-    regexp: '^ckan\.plugins.*harvest ckan_harvester.*$'
+    regexp: '^ckan\.plugins.*harvest ckan_harvester csw_harvester waf_harvester doc_harvester.*$'
     state: absent
   check_mode: yes
   changed_when: false
   register: harvest_plugins_enabled
 
-- name: Enable harvest and ckan_harvester plugins in production.ini
+- name: Enable harvest ckan_harvester csw_harvester waf_harvester doc_harvester plugins in production.ini
   lineinfile:
     dest: "{{ ckan_conf_dir }}/production.ini"
     regexp: '^(ckan\.plugins(.*)$)'
     backrefs: yes
-    line: '\1 harvest ckan_harvester'
+    line: '\1 harvest ckan_harvester csw_harvester waf_harvester doc_harvester'
     state: present
   when: not harvest_plugins_enabled.found
   notify: reload apache2
