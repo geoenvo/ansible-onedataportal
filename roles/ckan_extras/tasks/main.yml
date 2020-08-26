@@ -563,6 +563,55 @@
   when: not pages_plugin_enabled.found
   notify: reload apache2
 
+# Setup ckanext-officedocs extension
+# https://github.com/jqnatividad/ckanext-officedocs
+- name: "Install ckanext-officedocs extension from `{{ ckanext_officedocs_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_officedocs_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Check if officedocs_view plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*officedocs_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: officedocs_plugin_enabled
+
+- name: Enable officedocs_view plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 officedocs_view'
+    state: present
+  when: not officedocs_plugin_enabled.found
+  notify: reload apache2
+
+- name: Check if officedocs_view view is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.views\.default_views.*officedocs_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: officedocs_views_enabled
+
+- name: Enable officedocs_view default view in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.views\.default_views(.*)$)'
+    backrefs: yes
+    line: '\1 officedocs_view'
+    state: present
+  when: not officedocs_views_enabled.found
+  notify: reload apache2
+
 # Setup ckanext-onedataportal extension
 # https://github.com/geoenvo/ckanext-onedataportal
 - name: "Install ckanext-onedataportal extension from `{{ ckanext_onedataportal_src_url }}`"

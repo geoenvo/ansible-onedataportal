@@ -87,6 +87,8 @@ ckanext_pdfview_version: "6669a93b249413aba6653634849ed5a2eb7cca7a"
 ckanext_pdfview_src_url: "git+https://github.com/ckan/ckanext-pdfview.git@{{ ckanext_pdfview_version }}#egg=ckanext-pdfview"
 ckanext_pages_version: "da7f35d0712a7d032221f65081ef937ca8c02af9"
 ckanext_pages_src_url: "git+https://github.com/ckan/ckanext-pages.git@{{ ckanext_pages_version }}#egg=ckanext-pages"
+ckanext_officedocs_version: "8c12453dacb7edcf0856ecff45e0d4ca4d5ac2e9"
+ckanext_officedocs_src_url: "git+https://github.com/jqnatividad/ckanext-officedocs.git@{{ ckanext_officedocs_version }}#egg=ckanext-officedocs"
 ckanext_onedataportal_src_url: "git+https://github.com/geoenvo/ckanext-onedataportal.git#egg=ckanext-onedataportal"
 ckan_onedataportal_geoportal_url: "{{ ckan_site_url }}:8080"
 ckan_onedataportal_geoportal_name: Geoportal
