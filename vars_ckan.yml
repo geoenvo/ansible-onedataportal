@@ -32,7 +32,7 @@ ckan_max_image_size: 10
 ckan_email_to: "admin@yourdomain.com"
 ckan_error_email_from: "no-reply@yourdomain.com"
 ckan_smtp_server: "smtp.yourdomain.com"
-ckan_smtp_starttls: False
+ckan_smtp_starttls: false
 ckan_smtp_user: "ckan-mailer"
 ckan_smtp_password: 'changethispassword'
 ckan_smtp_mail_from: "no-reply@yourdomain.com"
