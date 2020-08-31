@@ -99,7 +99,7 @@ SSH to the target server and perform the following steps:
         ansible-playbook -K -i inventory install_all.yml
           BECOME password: enter the user's sudo password
         ```
-    * NOTE: to speed up installation copy `solr-6.5.1.tgz`, `jetty-9.4.12-oskari.zip`, `geoserver-2.13.2-war.zip`, and `oskari-map.war` to /tmp to skip downloading and building
+    * NOTE: to speed up installation copy `solr-6.5.1.tgz`, `jetty-9.4.12-oskari.zip`, `geoserver-2.13.2-war.zip`, and `oskari-map.war` to /tmp to skip the long tasks for downloading and building
     * Optional: install the development tools for customizing/building Oskari components
       * Refer to https://oskari.org/documentation/backend/setup-development
       * PostgreSQL and PostGIS must be installed first if they haven't been installed above
