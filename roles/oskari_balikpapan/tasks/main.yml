@@ -205,6 +205,15 @@
     path: "{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn"
     state: directory
 
+- name: "Check if custom `oskari-map.war` build already exists in `{{ working_dir }}` (will skip long `mvn clean install` task)"
+  stat:
+    path: "{{ working_dir }}/oskari-map.war"
+  register: oskari_map_war_stat
+
+- name: "Copy custom `oskari-map.war` build from `{{ working_dir }}/oskari-map.war` to `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/webapp-map/target/oskari-map.war`"
+  shell: "cp {{ working_dir }}/oskari-map.war {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/webapp-map/target/oskari-map.war"
+  when: oskari_map_war_stat.stat.exists == true
+
 - name: "Run `mvn clean install` in `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn` to build custom `oskari-map.war`"
   shell: |
     cd {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn
