@@ -232,9 +232,11 @@
       #### Extra spatial settings
       ckan.spatial.srid = 4326
       ckanext.spatial.search_backend = solr
-      ckan.resource_proxy.max_file_size = 26214400 # 25 MB * 1024 * 1024
+      # 100 MB * 1024 * 1024 = 104857600
+      ckan.resource_proxy.max_file_size = 104857600
       ckanext.geoview.ol_viewer.formats = wms wfs geojson gml kml arcgis_rest gft
-      ckanext.geoview.geojson.max_file_size = 26214400 # 25 MB * 1024 * 1024
+      # 100 MB * 1024 * 1024 = 104857600
+      ckanext.geoview.geojson.max_file_size = 104857600
       ckanext.geoview.shp_viewer.srid = 4326
       ckanext.geoview.shp_viewer.encoding = UTF-8
       # for base layer settings below refer to https://docs.ckan.org/projects/ckanext-spatial/en/latest/map-widgets.html
