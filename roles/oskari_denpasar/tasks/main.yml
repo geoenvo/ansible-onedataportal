@@ -197,6 +197,13 @@
     path: "{{ working_dir }}/oskari-map.war"
   register: oskari_map_war_stat
 
+- name: "Create `oskari-map.war` build directory `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-dps/webapp-map/target`"
+  file:
+    path: "{{ install_dir_oskari }}/oskari-server/oskari-server-extension-dps/webapp-map/target"
+    mode: 0755
+    state: directory
+  when: oskari_map_war_stat.stat.exists == true
+
 - name: "Copy custom `oskari-map.war` build from `{{ working_dir }}/oskari-map.war` to `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-dps/webapp-map/target/oskari-map.war`"
   shell: "cp {{ working_dir }}/oskari-map.war {{ install_dir_oskari }}/oskari-server/oskari-server-extension-dps/webapp-map/target/oskari-map.war"
   when: oskari_map_war_stat.stat.exists == true
