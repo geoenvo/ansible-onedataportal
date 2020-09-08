@@ -3,7 +3,7 @@
 # Server variables
 #
 
-server_timezone: Asia/Jakarta
+server_timezone: Asia/Makassar
 ## create a new user if username and password is set
 username: ""
 ## generate password hash with: python -c 'from passlib.hash import sha512_crypt; print sha512_crypt.encrypt("password")'
