@@ -157,7 +157,7 @@
 - name: "[FIX] Install `urllib3==1.24.3` package dependency for ckanext-harvest v1.3.1"
   pip:
     name: urllib3==1.24.3
-    virtualenv: "{{ ckan_datapusher_virtualenv }}"
+    virtualenv: "{{ ckan_virtualenv }}"
   when: ckanext_harvest_version == "v1.3.1"
 
 - name: "Install ckanext-harvest package requirements from `{{ ckan_virtualenv }}/src/ckanext-harvest/pip-requirements.txt`"
