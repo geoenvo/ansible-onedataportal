@@ -317,7 +317,7 @@
     state: present
   when: ckan_datapusher_installed.stat.exists == false
 
-- name: "Install ckanext-spatial package requirements from `{{ ckan_virtualenv }}/src/datapusher/requirements.txt`"
+- name: "Install DataPusher package requirements from `{{ ckan_virtualenv }}/src/datapusher/requirements.txt`"
   become: true
   become_user: "{{ ckan_user.name }}"
   pip:
@@ -761,6 +761,173 @@
     line: '\1 privatedatasets'
     state: present
   when: not privatedatasets_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-scheming extension
+# https://github.com/ckan/ckanext-scheming.git
+- name: "Install ckanext-scheming extension from `{{ ckanext_scheming_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_scheming_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Install ckanext-scheming package requirements from `{{ ckan_virtualenv }}/src/ckanext-scheming/requirements.txt`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    requirements: "{{ ckan_virtualenv }}/src/ckanext-scheming/requirements.txt"
+    virtualenv: "{{ ckan_virtualenv }}"
+    state: present
+
+- name: "Add extra ckanext-scheming settings to `{{ ckan_conf_dir }}/production.ini`"
+  blockinfile:
+    path: "{{ ckan_conf_dir }}/production.ini"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-scheming settings"
+    insertafter: '## Extra ckanext-scheming settings'
+    block: |
+      
+      #### Extra ckanext-scheming settings
+      scheming.presets = ckanext.onedataportal:presets.json ckanext.repeating:presets.json ckanext.composite:presets.json ckanext.validation:presets.json
+      scheming.dataset_schemas = ckanext.onedataportal:ckan_dataset.json
+  notify: reload apache2
+
+- name: Check if scheming plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*scheming_datasets.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: scheming_plugin_enabled
+
+- name: Enable scheming plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 scheming_datasets'
+    state: present
+  when: not scheming_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-repeating extension
+# https://github.com/open-data/ckanext-repeating.git
+- name: "Install ckanext-repeating extension from `{{ ckanext_repeating_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_repeating_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Check if repeating plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*repeating.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: repeating_plugin_enabled
+
+- name: Enable repeating plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 repeating'
+    state: present
+  when: not repeating_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-composite extension
+# https://github.com/EnviDat/ckanext-composite.git
+- name: "Install ckanext-composite extension from `{{ ckanext_composite_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_composite_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Check if composite plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*composite.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: composite_plugin_enabled
+
+- name: Enable composite plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 composite'
+    state: present
+  when: not composite_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-validation extension
+# https://github.com/frictionlessdata/ckanext-validation.git
+- name: "Install ckanext-validation extension from `{{ ckanext_validation_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_validation_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: "Install ckanext-validation package requirements from `{{ ckan_virtualenv }}/src/ckanext-validation/requirements.txt`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    requirements: "{{ ckan_virtualenv }}/src/ckanext-validation/requirements.txt"
+    virtualenv: "{{ ckan_virtualenv }}"
+    state: present
+
+- name: Check if validation plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*validation.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: validation_plugin_enabled
+
+- name: Enable validation plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 validation'
+    state: present
+  when: not validation_plugin_enabled.found
+  notify: reload apache2
+
+- name: "Check if ckanext-validation database tables initialized flag file `{{ ckan_conf_dir }}/.ckanext_validation_tables_initialized` exists"
+  stat:
+    path: "{{ ckan_conf_dir }}/.ckanext_validation_tables_initialized"
+  register: ckanext_validation_tables_initialized
+
+- name: "Initialize ckanext-validation database tables (only if `{{ ckan_conf_dir }}/.ckanext_validation_tables_initialized` file does not exist)"
+  shell: |
+    {{ ckan_virtualenv }}/bin/paster --plugin=ckanext-validation validation init-db -c {{ ckan_conf_dir }}/production.ini
+    exit
+  when: ckanext_validation_tables_initialized.stat.exists == false
+
+- name: "Create ckanext-validation database tables initialized flag file `{{ ckan_conf_dir }}/.ckanext_validation_tables_initialized`"
+  copy:
+    content: "ckanext-validation database tables initialized\n"
+    dest: "{{ ckan_conf_dir }}/.ckanext_validation_tables_initialized"
+    mode: 0644
+  when: ckanext_validation_tables_initialized.stat.exists == false
   notify: reload apache2
 
 - name: "Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by Apache process"
