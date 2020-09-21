@@ -541,6 +541,25 @@
   when: not pdfview_plugin_enabled.found
   notify: reload apache2
 
+- name: Check if pdf_view view is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.views\.default_views.*pdf_view.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: pdf_view_enabled
+
+- name: Enable pdf_view default view in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.views\.default_views(.*)$)'
+    backrefs: yes
+    line: '\1 pdf_view'
+    state: present
+  when: not pdf_view_enabled.found
+  notify: reload apache2
+
 # Setup ckanext-pages extension
 # https://github.com/ckan/ckanext-pages
 - name: "Install ckanext-pages extension from `{{ ckanext_pages_src_url }}`"
@@ -608,7 +627,7 @@
     state: absent
   check_mode: yes
   changed_when: false
-  register: officedocs_views_enabled
+  register: officedocs_view_enabled
 
 - name: Enable officedocs_view default view in production.ini
   lineinfile:
@@ -617,7 +636,7 @@
     backrefs: yes
     line: '\1 officedocs_view'
     state: present
-  when: not officedocs_views_enabled.found
+  when: not officedocs_view_enabled.found
   notify: reload apache2
 
 # Setup ckanext-onedataportal extension
