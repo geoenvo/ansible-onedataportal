@@ -660,6 +660,13 @@
       #### Extra ckanext-onedataportal settings
       ckan.onedataportal.geoportal_url = {{ ckan_onedataportal_geoportal_url }}
       ckan.onedataportal.geoportal_name = {{ ckan_onedataportal_geoportal_name }}
+      # extra nav links
+      #ckan.onedataportal.navlink1_url =
+      #ckan.onedataportal.navlink1_name =
+      #ckan.onedataportal.navlink2_url =
+      #ckan.onedataportal.navlink2_name =
+      #ckan.onedataportal.navlink3_url =
+      #ckan.onedataportal.navlink3_name =
   notify: reload apache2
 
 - name: Check if onedataportal plugin is already enabled in production.ini
