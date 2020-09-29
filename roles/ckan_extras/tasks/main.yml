@@ -668,8 +668,9 @@
       #ckan.onedataportal.navlink3_url =
       #ckan.onedataportal.navlink3_name =
       # if convert_shpz is set to True all uploaded PointZ, PolyLineZ, PolygonZ, MultiPointZ zip shapefiles
-      # will have their z-values removed, this is due to the CKAN ckanext-geoview SHP viewer not supporting shapefiles with Z-values
-      #ckan.onedataportal.convert_shpz = False
+      # will have their z-values removed, this is due to the CKAN ckanext-geoview SHP viewer not supporting
+      # shapefiles with Z-values
+      ckan.onedataportal.convert_shpz = True
   notify: reload apache2
 
 - name: Check if onedataportal plugin is already enabled in production.ini
