@@ -667,9 +667,9 @@
       #ckan.onedataportal.navlink2_name =
       #ckan.onedataportal.navlink3_url =
       #ckan.onedataportal.navlink3_name =
-      # if convert_shpz is set to True all uploaded PointZ, PolyLineZ, PolygonZ, MultiPointZ zip shapefiles
-      # will have their z-values removed, this is due to the CKAN ckanext-geoview SHP viewer not supporting
-      # shapefiles with Z-values
+      # if convert_shpz is set to True all uploaded PointZ/M, PolyLineZ/M, PolygonZ/M, MultiPointZ/M zip shapefiles
+      # will have their Z/M-values removed, this is due to the CKAN ckanext-geoview SHP viewer not supporting
+      # shapefiles with Z/M-values
       ckan.onedataportal.convert_shpz = True
   notify: reload apache2
 
