@@ -650,6 +650,14 @@
     editable: yes
     state: present
 
+- name: "Install ckanext-onedataportal package requirements from `{{ ckan_virtualenv }}/src/ckanext-onedataportal/requirements.txt`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    requirements: "{{ ckan_virtualenv }}/src/ckanext-onedataportal/requirements.txt"
+    virtualenv: "{{ ckan_virtualenv }}"
+    state: present
+
 - name: "Add extra ckanext-onedataportal settings to `{{ ckan_conf_dir }}/production.ini`"
   blockinfile:
     path: "{{ ckan_conf_dir }}/production.ini"
