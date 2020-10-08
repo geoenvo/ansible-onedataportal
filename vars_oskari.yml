@@ -16,7 +16,7 @@ oskari_version: 1.55.2
 oskari_client_version: 1.2.1
 oskari_jetty_bundle_archive_url: "https://github.com/geoenvo/ansible-onedataportal/releases/download/mirror_oskari_{{ oskari_version }}/{{ oskari_jetty_bundle_archive }}"
 #oskari_locales: "en_US,fi_FI,sv_SE,es_ES,in_ID"
-oskari_locales: "en_US,in_ID"
+oskari_locales: "in_ID,en_US"
 oskari_development_node_version: 12
 geoserver_version: 2.13.2
 geoserver_war_archive: "geoserver-{{ geoserver_version }}-war.zip"

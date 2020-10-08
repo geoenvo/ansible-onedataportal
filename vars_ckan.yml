@@ -37,8 +37,10 @@ ckan_smtp_user: "ckan-mailer"
 ckan_smtp_password: 'changethispassword'
 ckan_smtp_mail_from: "no-reply@yourdomain.com"
 ckan_create_admin_user: true
-ckan_locale_default: en
-ckan_locale_order: "en id pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv"
+#ckan_locale_default: en
+ckan_locale_default: id
+#ckan_locale_order: "en id pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv"
+ckan_locale_order: "id en pt_BR ja it cs_CZ ca es fr el sv sr sr@latin no sk fi ru de pl nl bg ko_KR hu sa sl lv"
 # IMPORTANT: must use _ for space character in ckan_admin.username!
 ckan_admin: {
   username: "admin",
