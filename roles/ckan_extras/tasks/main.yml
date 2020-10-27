@@ -666,9 +666,10 @@
     block: |
       
       #### Extra ckanext-onedataportal settings
+      # setting for the Geoportal link in the nav menu
       ckan.onedataportal.geoportal_url = {{ ckan_onedataportal_geoportal_url }}
       ckan.onedataportal.geoportal_name = {{ ckan_onedataportal_geoportal_name }}
-      # extra nav links
+      # extra nav links in the nav menu, the Navlink URL must start with http://, https://, or /
       #ckan.onedataportal.navlink1_url =
       #ckan.onedataportal.navlink1_name =
       #ckan.onedataportal.navlink2_url =
@@ -679,6 +680,9 @@
       # will have their Z/M-values removed, this is due to the CKAN ckanext-geoview SHP viewer not supporting
       # shapefiles with Z/M-values
       ckan.onedataportal.convert_shpz = True
+      # if sysadmin_disable_create_dataset is set to True then all Sysadmin users will not be able to create new datasets
+      # but they will still be able to edit datasets
+      #ckan.onedataportal.sysadmin_disable_create_dataset = True
   notify: reload apache2
 
 - name: Check if onedataportal plugin is already enabled in production.ini
