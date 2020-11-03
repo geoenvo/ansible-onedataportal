@@ -306,6 +306,7 @@
       ckan.integration.ckanapi.dump.organizations={{ ckan_ckanapi_organizations_dump_file }}
       ckan.integration.ckanapi.dump.users={{ ckan_ckanapi_users_dump_file }}
       ckan.integration.ckanapi.dump.datasets={{ ckan_ckanapi_datasets_dump_file }}
+      ckan.integration.ckanapi.shp.resourceworkspaces=true
       ckan.integration.ckanapi.shp.forceproxy=true
       ckan.integration.ckanapi.geotiff.forceproxy=true
       ##################################
