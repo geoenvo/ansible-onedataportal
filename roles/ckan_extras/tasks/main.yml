@@ -972,6 +972,66 @@
   when: ckanext_validation_tables_initialized.stat.exists == false
   notify: reload apache2
 
+# Setup ckanext-mapviews extension
+# https://github.com/ckan/ckanext-mapviews
+- name: "Install ckanext-mapviews extension from `{{ ckanext_mapviews_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_mapviews_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Check if mapviews plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*navigablemap choroplethmap.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: mapviews_plugin_enabled
+
+- name: Enable mapviews plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 navigablemap choroplethmap'
+    state: present
+  when: not mapviews_plugin_enabled.found
+  notify: reload apache2
+
+# Setup ckanext-basiccharts extension
+# https://github.com/localidata/ckanext-basiccharts
+- name: "Install ckanext-basiccharts extension from `{{ ckanext_basiccharts_src_url }}`"
+  become: true
+  become_user: "{{ ckan_user.name }}"
+  pip:
+    name: "{{ ckanext_basiccharts_src_url }}"
+    virtualenv: "{{ ckan_virtualenv }}"
+    editable: yes
+    state: present
+
+- name: Check if basiccharts plugin is already enabled in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^ckan\.plugins.*linechart barchart piechart basicgrid.*$'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: basiccharts_plugin_enabled
+
+- name: Enable basiccharts plugin in production.ini
+  lineinfile:
+    dest: "{{ ckan_conf_dir }}/production.ini"
+    regexp: '^(ckan\.plugins(.*)$)'
+    backrefs: yes
+    line: '\1 linechart barchart piechart basicgrid'
+    state: present
+  when: not basiccharts_plugin_enabled.found
+  notify: reload apache2
+
 - name: "Set permissions on CKAN base js i18n directory `{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n` to allow write access by Apache process"
   file:
     path: "{{ ckan_virtualenv }}/src/ckan/ckan/public/base/i18n"
