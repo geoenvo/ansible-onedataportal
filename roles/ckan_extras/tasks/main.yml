@@ -105,6 +105,11 @@
     editable: yes
     state: present
 
+- name: "[FIX] Lock `geolinks` package dependency for ckanext-spatial"
+  pip:
+    name: geolinks==0.2.0
+    virtualenv: "{{ ckan_virtualenv }}"
+
 - name: "Install ckanext-spatial package requirements from `{{ ckan_virtualenv }}/src/ckanext-spatial/pip-requirements.txt`"
   become: true
   become_user: "{{ ckan_user.name }}"
@@ -159,6 +164,12 @@
 - name: "[FIX] Install `urllib3` package dependency for ckanext-harvest v1.3.1"
   pip:
     name: urllib3
+    virtualenv: "{{ ckan_virtualenv }}"
+  when: ckanext_harvest_version == "v1.3.1"
+
+- name: "[FIX] Lock `pika` package dependency for ckanext-harvest v1.3.1"
+  pip:
+    name: pika==1.1.0
     virtualenv: "{{ ckan_virtualenv }}"
   when: ckanext_harvest_version == "v1.3.1"
 
@@ -236,7 +247,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK Extra spatial settings"
     insertafter: '## Extra spatial settings'
     block: |
-      
+
       #### Extra spatial settings
       ckan.spatial.srid = 4326
       ckanext.spatial.search_backend = solr
@@ -487,7 +498,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-agsview settings"
     insertafter: '## Extra ckanext-agsview settings'
     block: |
-      
+
       #### Extra ckanext-agsview settings
       # set default esri basemap http://esri.github.io/esri-leaflet/api-reference/layers/basemap-layer.html
       ckanext.ags_view_default_basemap_url = Gray
@@ -666,7 +677,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-onedataportal settings"
     insertafter: '## Extra ckanext-onedataportal settings'
     block: |
-      
+
       #### Extra ckanext-onedataportal settings
       # setting for the Geoportal link in the nav menu
       ckan.onedataportal.geoportal_url = {{ ckan_onedataportal_geoportal_url }}
@@ -723,7 +734,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-issues settings"
     insertafter: '## Extra ckanext-issues settings'
     block: |
-      
+
       #### Extra ckanext-issues settings
       ckanext.issues.send_email_notifications = {{ ckan_issues_send_email_notifications }}
   notify: reload apache2
@@ -783,7 +794,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-privatedatasets settings"
     insertafter: '## Extra ckanext-privatedatasets settings'
     block: |
-      
+
       #### Extra ckanext-privatedatasets settings
       ckan.privatedatasets.parser = ckanext.privatedatasets.parsers.fiware:FiWareNotificationParser
   notify: reload apache2
@@ -832,7 +843,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK Extra ckanext-scheming settings"
     insertafter: '## Extra ckanext-scheming settings'
     block: |
-      
+
       #### Extra ckanext-scheming settings
       scheming.presets = ckanext.onedataportal:presets.json ckanext.repeating:presets.json ckanext.composite:presets.json ckanext.validation:presets.json
       scheming.dataset_schemas = ckanext.onedataportal:ckan_dataset.json
@@ -927,6 +938,16 @@
     virtualenv: "{{ ckan_virtualenv }}"
     editable: yes
     state: present
+
+- name: "[FIX] Lock `tableschema` package dependency for ckanext-validation"
+  pip:
+    name: tableschema==1.20.0
+    virtualenv: "{{ ckan_virtualenv }}"
+
+- name: "[FIX] Lock `datapackage` package dependency for ckanext-validation"
+  pip:
+    name: datapackage==1.15.1
+    virtualenv: "{{ ckan_virtualenv }}"
 
 - name: "Install ckanext-validation package requirements from `{{ ckan_virtualenv }}/src/ckanext-validation/requirements.txt`"
   become: true
