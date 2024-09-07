@@ -105,7 +105,7 @@
     editable: yes
     state: present
 
-- name: "[FIX] Lock `geolinks` package dependency for ckanext-spatial"
+- name: "[FIX 2024] Lock `geolinks` package dependency for ckanext-spatial"
   pip:
     name: geolinks==0.2.0
     virtualenv: "{{ ckan_virtualenv }}"
@@ -167,7 +167,7 @@
     virtualenv: "{{ ckan_virtualenv }}"
   when: ckanext_harvest_version == "v1.3.1"
 
-- name: "[FIX] Lock `pika` package dependency for ckanext-harvest v1.3.1"
+- name: "[FIX 2024] Lock `pika` package dependency for ckanext-harvest v1.3.1"
   pip:
     name: pika==1.1.0
     virtualenv: "{{ ckan_virtualenv }}"
@@ -939,12 +939,12 @@
     editable: yes
     state: present
 
-- name: "[FIX] Lock `tableschema` package dependency for ckanext-validation"
+- name: "[FIX 2024] Lock `tableschema` package dependency for ckanext-validation"
   pip:
     name: tableschema==1.20.0
     virtualenv: "{{ ckan_virtualenv }}"
 
-- name: "[FIX] Lock `datapackage` package dependency for ckanext-validation"
+- name: "[FIX 2024] Lock `datapackage` package dependency for ckanext-validation"
   pip:
     name: datapackage==1.15.1
     virtualenv: "{{ ckan_virtualenv }}"

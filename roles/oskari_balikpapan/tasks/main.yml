@@ -221,6 +221,14 @@
   shell: "cp {{ working_dir }}/oskari-map.war {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/webapp-map/target/oskari-map.war"
   when: oskari_map_war_stat.stat.exists == true
 
+- name: [FIX 2024] Copy `settings.xml` file for Maven from template for overriding `mvn clean install` settings
+  copy:
+    src: ../../oskari_denpasar/templates/settings.xml
+    dest: "/root/.m2/settings.xml"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: "Run `mvn clean install` in `{{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn` to build custom `oskari-map.war`"
   shell: |
     cd {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn
@@ -293,7 +301,7 @@
   blockinfile:
     path: "{{ install_dir_oskari }}/oskari-server/resources/oskari-ext.properties"
     block: |
-      
+
       ##################################
       # CKAN-Oskari Integration Setup
       ##################################

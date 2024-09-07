@@ -94,6 +94,11 @@
     virtualenv: "{{ ckan_virtualenv }}"
     state: present
 
+- name: "[FIX 2024] Lock `python-slugify` package dependency for ckanapi"
+  pip:
+    name: python-slugify==4.0.1
+    virtualenv: "{{ ckan_virtualenv }}"
+
 - name: "Install ckanapi Python package version `{{ ckan_ckanapi_version }}` from `https://pypi.org/project/ckanapi/`"
   become: true
   become_user: "{{ ckan_user.name }}"
