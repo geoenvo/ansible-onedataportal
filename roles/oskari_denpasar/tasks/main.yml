@@ -208,6 +208,14 @@
   shell: "cp {{ working_dir }}/oskari-map.war {{ install_dir_oskari }}/oskari-server/oskari-server-extension-dps/webapp-map/target/oskari-map.war"
   when: oskari_map_war_stat.stat.exists == true
 
+- name: "Create root user Maven settings directory at `/root/.m2`"
+  file:
+    path: "/root/.m2"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
 - name: "[FIX 2024] Copy `settings.xml` file for Maven from template for overriding `mvn clean install` settings"
   copy:
     src: ../templates/settings.xml
