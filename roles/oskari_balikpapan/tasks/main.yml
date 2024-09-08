@@ -221,7 +221,7 @@
   shell: "cp {{ working_dir }}/oskari-map.war {{ install_dir_oskari }}/oskari-server/oskari-server-extension-bpn/webapp-map/target/oskari-map.war"
   when: oskari_map_war_stat.stat.exists == true
 
-- name: [FIX 2024] Copy `settings.xml` file for Maven from template for overriding `mvn clean install` settings
+- name: "[FIX 2024] Copy `settings.xml` file for Maven from template for overriding `mvn clean install` settings"
   copy:
     src: ../../oskari_denpasar/templates/settings.xml
     dest: "/root/.m2/settings.xml"
